@@ -1,0 +1,10 @@
+.DS_Store
+db
+dist
+.cabal-sandbox
+cabal.sandbox.config
+hscope.out
+codex.tags
+.anvil
+.stack-work
+tags
