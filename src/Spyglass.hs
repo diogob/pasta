@@ -1,9 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Spyglass
-    ( selectFrom
+    ( select
+    , selectFrom
     , selectFunction
-    , selectExpression
+    , selectExp
     , columns
     , whereClause
     , relationAlias
@@ -13,6 +14,9 @@ module Spyglass
     , identifier
     , alias
     , fromClause
+    , t
+    , f
+    , setWhere
     ) where
 
 import Control.Lens
@@ -32,6 +36,7 @@ data Expression = Identifier Name
                   { _qualifier :: Name
                   , _identifier :: Name
                   }
+                | Boolean Bool
                 | Or (Expression, Expression)
                 | And (Expression, Expression)
                 | Not Expression
@@ -63,6 +68,8 @@ makeLenses ''Column
 makeLenses ''Expression
 
 instance TextShow Expression where
+  showb (Boolean True) = "true"
+  showb (Boolean False) = "false"
   showb (Identifier "*") = "*"
   showb (Identifier i) = showb i
   showb (QualifiedIdentifier q i) = showb q <> "." <> showb i
@@ -87,7 +94,7 @@ instance TextShow Column where
 instance TextShow Select where
   showb (Select c f w) =
     select <> case w of
-        Just ex -> "WHERE " <> showb ex
+        Just ex -> " WHERE " <> showb ex
         Nothing -> ""
     where select = "SELECT " <> fromText (withCommas c) <>
                    if null f
@@ -104,11 +111,23 @@ instance IsString FromItem where
 instance IsString Column where
   fromString = ColumnExpression . fromString
 
-selectFrom :: Expression -> Select
-selectFrom table = Select ["*"] [RelationExpression table] Nothing
+select :: Select
+select = Select ["*"] [] Nothing
 
-selectExpression :: Expression -> Select
-selectExpression expr = Select [ColumnExpression expr] [] Nothing
+selectFrom :: Expression -> Select
+selectFrom table = select & fromClause .~ [RelationExpression table]
+
+selectExp :: Expression -> Select
+selectExp expr = select & columns .~ [ColumnExpression expr]
 
 selectFunction :: T.Text -> [Expression] -> Select
-selectFunction fn parameters = Select [ColumnExpression $ FunctionCall (fn, parameters)] [] Nothing
+selectFunction fn parameters = selectExp $ FunctionCall (fn, parameters)
+
+t :: Expression
+t = Boolean True
+
+f :: Expression
+f = Boolean False
+
+setWhere :: Expression -> Select -> Select
+setWhere = set whereClause . Just
