@@ -66,7 +66,7 @@ data FromRelation = FromRelation
 data Select = Select
               { _columns     :: NonEmpty Column
               , _fromClause  :: [FromRelation]
-              , _whereClause :: Maybe Expression
+              , _whereClause :: Maybe BooleanExpression
               } deriving (Eq, Show)
 
 data Assignment = Assignment
@@ -75,9 +75,15 @@ data Assignment = Assignment
                   } deriving (Eq, Show)
 
 data Update = Update
-              { _targetRelation       :: Identifier
+              { _updateTarget       :: Identifier
               , _assignments  :: NonEmpty Assignment
-              , _updateFilter :: Maybe Expression
+              , _updateFilter :: Maybe BooleanExpression
+              } deriving (Eq, Show)
+
+data Insert = Insert
+              { _insertTarget       :: Identifier
+              , _insertColumns  :: NonEmpty Name
+              , _insertValues :: NonEmpty Expression
               } deriving (Eq, Show)
 
 makeLenses ''Update
@@ -157,5 +163,5 @@ t = BoolExp $ BoolLiteral True
 f :: Expression
 f = BoolExp $ BoolLiteral False
 
-setWhere :: Expression -> Select -> Select
+setWhere :: BooleanExpression -> Select -> Select
 setWhere = set whereClause . Just
