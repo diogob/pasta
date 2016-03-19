@@ -49,4 +49,4 @@ test-suite spyglass-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/spyglass
+  location: https://github.com/diogob/spyglass
