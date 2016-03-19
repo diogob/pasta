@@ -26,7 +26,7 @@ import qualified Data.Text          as T
 import           TextShow           (TextShow, fromText, showb, showt)
 
 withCommas :: TextShow a => [a] -> T.Text
-withCommas s = T.intercalate ", " $ fmap showt s
+withCommas = T.intercalate ", " . map showt
 
 newtype Operator = Operator T.Text deriving (Eq, Show)
 newtype Literal = Literal T.Text deriving (Eq, Show)
@@ -92,6 +92,12 @@ makeLenses ''FromRelation
 makeLenses ''Column
 makeLenses ''Expression
 
+instance TextShow Insert where
+  showb (Insert e1 e2 e3) = fromText $ "INSERT INTO " <> showt e1 <> " (" <> showCommas e2 <> ") VALUES (" <> showCommas e3 <> ")"
+    where
+      showCommas :: TextShow a => NonEmpty a -> T.Text
+      showCommas = withCommas . toList
+
 instance TextShow BooleanExpression where
   showb (Or (e1, e2)) = showb e1 <> " OR " <> showb e2
   showb (And (e1, e2)) = showb e1 <> " AND " <> showb e2
@@ -136,6 +142,12 @@ instance TextShow Select where
                       else " FROM "
                     <> fromText (withCommas fr)
 
+instance IsString Expression where
+  fromString = LiteralExp . Literal . fromString
+
+instance IsString Literal where
+  fromString = Literal . fromString
+
 instance IsString Name where
   fromString = Name . fromString
 
@@ -157,11 +169,11 @@ selectExp expr = select & columns .~ (Column expr :| [])
 selectFunction :: T.Text -> [Expression] -> Select
 selectFunction fn parameters = selectExp $ FunctionExp (Name fn, parameters)
 
-t :: Expression
-t = BoolExp $ BoolLiteral True
+t :: BooleanExpression
+t = BoolLiteral True
 
-f :: Expression
-f = BoolExp $ BoolLiteral False
+f :: BooleanExpression
+f = BoolLiteral False
 
 setWhere :: BooleanExpression -> Select -> Select
 setWhere = set whereClause . Just
