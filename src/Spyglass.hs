@@ -28,6 +28,9 @@ import           TextShow           (TextShow, fromText, showb, showt)
 withCommas :: TextShow a => [a] -> T.Text
 withCommas = T.intercalate ", " . map showt
 
+neWithCommas :: TextShow a => NonEmpty a -> T.Text
+neWithCommas = withCommas . toList
+
 newtype Operator = Operator T.Text deriving (Eq, Show)
 newtype Literal = Literal T.Text deriving (Eq, Show)
 newtype Name = Name T.Text deriving (Eq, Show)
@@ -93,10 +96,7 @@ makeLenses ''Column
 makeLenses ''Expression
 
 instance TextShow Insert where
-  showb (Insert e1 e2 e3) = fromText $ "INSERT INTO " <> showt e1 <> " (" <> showCommas e2 <> ") VALUES (" <> showCommas e3 <> ")"
-    where
-      showCommas :: TextShow a => NonEmpty a -> T.Text
-      showCommas = withCommas . toList
+  showb (Insert e1 e2 e3) = fromText $ "INSERT INTO " <> showt e1 <> " (" <> neWithCommas e2 <> ") VALUES (" <> neWithCommas e3 <> ")"
 
 instance TextShow BooleanExpression where
   showb (Or (e1, e2)) = showb e1 <> " OR " <> showb e2
@@ -136,7 +136,7 @@ instance TextShow Select where
     sel <> case w of
         Just ex -> " WHERE " <> showb ex
         Nothing -> ""
-    where sel = "SELECT " <> fromText (withCommas $ toList c) <>
+    where sel = "SELECT " <> fromText (neWithCommas c) <>
                    if null fr
                       then ""
                       else " FROM "
