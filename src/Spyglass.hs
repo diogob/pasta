@@ -16,6 +16,7 @@ module Spyglass
     , t
     , f
     , setWhere
+    , insert
     ) where
 
 import           Control.Lens
@@ -23,7 +24,7 @@ import           Data.List.NonEmpty (NonEmpty(..), toList)
 import           Data.Monoid        ((<>))
 import           Data.String        (IsString, fromString)
 import qualified Data.Text          as T
-import           TextShow           (TextShow, fromText, showb, showt)
+import           TextShow           (TextShow, fromText, showb, showt, printT)
 
 withCommas :: TextShow a => [a] -> T.Text
 withCommas = T.intercalate ", " . map showt
@@ -177,3 +178,12 @@ f = BoolLiteral False
 
 setWhere :: BooleanExpression -> Select -> Select
 setWhere = set whereClause . Just
+
+insert :: T.Text -> NonEmpty T.Text -> NonEmpty T.Text -> Insert
+insert target cols vals = Insert (Identifier schema table) colNames valExps
+  where
+    qId = Name <$> T.split (=='.') target
+    schema = head qId
+    table = qId!!2
+    colNames = Name <$> cols
+    valExps = (LiteralExp . Literal) <$> vals
