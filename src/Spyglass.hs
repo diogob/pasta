@@ -187,6 +187,6 @@ insert target cols vals = Insert (Identifier schema table) colNames valExps
   where
     qId = Name <$> T.split (=='.') target
     schema = head qId
-    table = qId!!2
+    table = qId!!1
     colNames = Name <$> cols
     valExps = (LiteralExp . Literal) <$> vals
