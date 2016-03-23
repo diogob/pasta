@@ -20,6 +20,7 @@ module Spyglass
     , showt
     , NonEmpty(..)
     , fromList
+    , fromText
     ) where
 
 import           Control.Lens
