@@ -186,7 +186,11 @@ insert :: T.Text -> NonEmpty T.Text -> NonEmpty T.Text -> Insert
 insert target cols vals = Insert (Identifier schema table) colNames valExps
   where
     qId = Name <$> T.split (=='.') target
-    schema = head qId
-    table = qId!!1
+    schema = if length qId == 2
+               then head qId
+               else "public"
+    table = if length qId == 2
+               then qId!!1
+               else head qId
     colNames = Name <$> cols
     valExps = (LiteralExp . Literal) <$> vals
