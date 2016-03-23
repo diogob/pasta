@@ -17,14 +17,17 @@ module Spyglass
     , f
     , setWhere
     , insert
+    , showt
+    , NonEmpty(..)
+    , fromList
     ) where
 
 import           Control.Lens
-import           Data.List.NonEmpty (NonEmpty(..), toList)
+import           Data.List.NonEmpty (NonEmpty(..), toList, fromList)
 import           Data.Monoid        ((<>))
 import           Data.String        (IsString, fromString)
 import qualified Data.Text          as T
-import           TextShow           (TextShow, fromText, showb, showt, printT)
+import           TextShow           (TextShow, fromText, showb, showt)
 
 withCommas :: TextShow a => [a] -> T.Text
 withCommas = T.intercalate ", " . map showt
