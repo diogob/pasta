@@ -20,7 +20,6 @@ module Spyglass
     , showt
     , NonEmpty(..)
     , fromList
-    , fromText
     ) where
 
 import           Control.Lens
@@ -114,7 +113,7 @@ instance TextShow Identifier where
   showb (Identifier e1 e2) = showb e1 <> "." <> showb e2
 
 instance TextShow Literal where
-  showb (Literal e) = showb e
+  showb (Literal e) = "$$" <> fromText e <> "$$"
 
 instance TextShow Expression where
   showb (IdentifierExp e) = showb e
