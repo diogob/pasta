@@ -1,8 +1,8 @@
-name:                spyglass
+name:                pasta
 version:             0.1.0.0
 synopsis:            Initial project template from stack
 description:         Please see README.md
-homepage:            http://github.com/githubuser/spyglass#readme
+homepage:            http://github.com/githubuser/pasta#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Author name here
@@ -16,16 +16,20 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   ghc-options:         -Wall
-  exposed-modules:     Spyglass
+  exposed-modules:     Pasta
+  other-modules:       Pasta.Prelude
+                     , Pasta.Insert
+                     , Pasta.Update
+                     , Pasta.Select
   build-depends:       base >= 4.7 && < 5
                      , lens >= 4.13
                      , text
                      , text-show
                      , semigroups >= 0.18
   default-language:    Haskell2010
-  default-extensions:  OverloadedStrings, ScopedTypeVariables
+  default-extensions:  OverloadedStrings, ScopedTypeVariables, TemplateHaskell
 
-executable spyglass-exe
+executable pasta-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
@@ -33,18 +37,17 @@ executable spyglass-exe
                      , lens >= 4.13
                      , text
                      , text-show
-                     , spyglass
+                     , pasta
   default-language:    Haskell2010
   default-extensions:  OverloadedStrings, ScopedTypeVariables
 
-test-suite spyglass-test
+test-suite pasta-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base >= 4.7 && < 5
-                     , spyglass
+                     , pasta
                      , hspec >= 2.2
-                     , text-show >= 2.1
                      , lens >= 4.13
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
@@ -52,4 +55,4 @@ test-suite spyglass-test
 
 source-repository head
   type:     git
-  location: https://github.com/diogob/spyglass
+  location: https://github.com/diogob/pasta

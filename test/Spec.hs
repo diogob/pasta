@@ -1,6 +1,6 @@
 import Test.Hspec
 
-import Spyglass
+import Pasta
 import Control.Lens
 
 main :: IO ()

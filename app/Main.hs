@@ -1,6 +1,6 @@
 module Main where
 
-import Spyglass
+import Pasta
 import TextShow (printT)
 import Control.Lens
 
