@@ -15,3 +15,4 @@ dependencies:
 test:
   override:
     - stack test
+    - git ls-files | grep '\.l\?hs$' | xargs stack exec hlint
