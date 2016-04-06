@@ -1,6 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
-
-module Spyglass
+module Pasta.Select 
     ( select
     , selectFrom
     , selectFunction
@@ -13,36 +11,15 @@ module Spyglass
     , expression
     , alias
     , fromClause
+    , setWhere
+    , BooleanExpression (..)
+    , Expression (..)
     , t
     , f
-    , setWhere
-    , insert
-    , showt
-    , NonEmpty(..)
-    , fromList
     ) where
 
-import           Control.Lens
-import           Data.List.NonEmpty (NonEmpty(..), toList, fromList)
-import           Data.Monoid        ((<>))
-import           Data.String        (IsString, fromString)
-import qualified Data.Text          as T
-import           TextShow           (TextShow, fromText, showb, showt)
-
-withCommas :: TextShow a => [a] -> T.Text
-withCommas = T.intercalate ", " . map showt
-
-neWithCommas :: TextShow a => NonEmpty a -> T.Text
-neWithCommas = withCommas . toList
-
-newtype Operator = Operator T.Text deriving (Eq, Show)
-newtype Literal = Literal T.Text deriving (Eq, Show)
-newtype Name = Name T.Text deriving (Eq, Show)
-
-data Identifier = Identifier
-               { _qualifier  :: Name
-               , _identifier :: Name
-               } deriving (Eq, Show)
+import Pasta.Prelude
+import qualified Data.Text as T
 
 data BooleanExpression = Or (Expression, Expression)
                        | And (Expression, Expression)
@@ -76,44 +53,10 @@ data Select = Select
               , _whereClause :: Maybe BooleanExpression
               } deriving (Eq, Show)
 
-data Assignment = Assignment
-                  { _targetColumn :: Name
-                  , _assignmentValue :: Expression
-                  } deriving (Eq, Show)
-
-data Update = Update
-              { _updateTarget       :: Identifier
-              , _assignments  :: NonEmpty Assignment
-              , _updateFilter :: Maybe BooleanExpression
-              } deriving (Eq, Show)
-
-data Insert = Insert
-              { _insertTarget       :: Identifier
-              , _insertColumns  :: NonEmpty Name
-              , _insertValues :: NonEmpty Expression
-              } deriving (Eq, Show)
-
-makeLenses ''Update
 makeLenses ''Select
 makeLenses ''FromRelation
 makeLenses ''Column
 makeLenses ''Expression
-
-instance TextShow Insert where
-  showb (Insert e1 e2 e3) = fromText $ "INSERT INTO " <> showt e1 <> " (" <> neWithCommas e2 <> ") VALUES (" <> neWithCommas e3 <> ")"
-
-instance TextShow BooleanExpression where
-  showb (Or (e1, e2)) = showb e1 <> " OR " <> showb e2
-  showb (And (e1, e2)) = showb e1 <> " AND " <> showb e2
-  showb (Not e) = "NOT " <> showb e
-  showb (BoolLiteral True) = "true"
-  showb (BoolLiteral False) = "false"
-
-instance TextShow Identifier where
-  showb (Identifier e1 e2) = showb e1 <> "." <> showb e2
-
-instance TextShow Literal where
-  showb (Literal e) = "$$" <> fromText e <> "$$"
 
 instance TextShow Expression where
   showb (IdentifierExp e) = showb e
@@ -126,10 +69,6 @@ instance TextShow Expression where
 
 instance TextShow FromRelation where
   showb (FromRelation e a) = showb e <> " " <> showb a
-
-instance TextShow Name where
-  showb (Name "*") = "*"
-  showb (Name c) = showb c
 
 instance TextShow Column where
   showb (Column c) = showb c
@@ -146,14 +85,15 @@ instance TextShow Select where
                       else " FROM "
                     <> fromText (withCommas fr)
 
+instance TextShow BooleanExpression where
+  showb (Or (e1, e2)) = showb e1 <> " OR " <> showb e2
+  showb (And (e1, e2)) = showb e1 <> " AND " <> showb e2
+  showb (Not e) = "NOT " <> showb e
+  showb (BoolLiteral True) = "true"
+  showb (BoolLiteral False) = "false"
+
 instance IsString Expression where
   fromString = LiteralExp . Literal . fromString
-
-instance IsString Literal where
-  fromString = Literal . fromString
-
-instance IsString Name where
-  fromString = Name . fromString
 
 instance IsString Column where
   fromString = Column . NameExp . fromString
@@ -173,24 +113,11 @@ selectExp expr = select & columns .~ (Column expr :| [])
 selectFunction :: T.Text -> [Expression] -> Select
 selectFunction fn parameters = selectExp $ FunctionExp (Name fn, parameters)
 
+setWhere :: BooleanExpression -> Select -> Select
+setWhere = set whereClause . Just
+
 t :: BooleanExpression
 t = BoolLiteral True
 
 f :: BooleanExpression
 f = BoolLiteral False
-
-setWhere :: BooleanExpression -> Select -> Select
-setWhere = set whereClause . Just
-
-insert :: T.Text -> NonEmpty T.Text -> NonEmpty T.Text -> Insert
-insert target cols vals = Insert (Identifier schema table) colNames valExps
-  where
-    qId = Name <$> T.split (=='.') target
-    schema = if length qId == 2
-               then head qId
-               else "public"
-    table = if length qId == 2
-               then qId!!1
-               else head qId
-    colNames = Name <$> cols
-    valExps = (LiteralExp . Literal) <$> vals
