@@ -18,7 +18,7 @@ library
   ghc-options:         -Wall
   exposed-modules:     Spyglass
   build-depends:       base >= 4.7 && < 5
-                     , lens
+                     , lens >= 4.13
                      , text
                      , text-show
                      , semigroups >= 0.18
@@ -29,8 +29,8 @@ executable spyglass-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , lens
+  build-depends:       base >= 4.7 && < 5
+                     , lens >= 4.13
                      , text
                      , text-show
                      , spyglass
@@ -41,8 +41,11 @@ test-suite spyglass-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
-  build-depends:       base
+  build-depends:       base >= 4.7 && < 5
                      , spyglass
+                     , hspec >= 2.2
+                     , text-show >= 2.1
+                     , lens >= 4.13
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
   default-extensions:  OverloadedStrings, ScopedTypeVariables
