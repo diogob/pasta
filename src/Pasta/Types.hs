@@ -1,26 +1,49 @@
-module Pasta.Select 
-    ( select
-    , selectFrom
-    , selectFunction
-    , selectExp
-    , columns
-    , whereClause
-    , relationAlias
-    , relationExpression
-    , exp
-    , expression
-    , alias
-    , fromClause
-    , setWhere
-    , BooleanExpression (..)
+module Pasta.Types
+    ( BooleanExpression (..)
     , Expression (..)
-    , t
-    , f
+    , Select (..)
+    , FromRelation (..)
+    , Column (..)
+    , Update (..)
+    , Insert (..)
+    , Name (..)
+    , Identifier (..)
+    , Literal (..)
     ) where
 
-import Pasta.Prelude
+import Data.List.NonEmpty (NonEmpty(..), toList)
+import Data.Monoid ((<>))
+import Data.String (IsString, fromString)
+import TextShow (TextShow, fromText, showb, showt)
 import qualified Data.Text as T
 
+-- Base types
+newtype Operator = Operator T.Text deriving (Eq, Show)
+newtype Literal = Literal T.Text deriving (Eq, Show)
+newtype Name = Name T.Text deriving (Eq, Show)
+
+data Identifier = Identifier
+               { _qualifier  :: Name
+               , _identifier :: Name
+               } deriving (Eq, Show)
+
+instance TextShow Literal where
+  showb (Literal e) = "$$" <> fromText e <> "$$"
+
+instance IsString Literal where
+  fromString = Literal . fromString
+
+instance TextShow Name where
+  showb (Name "*") = "*"
+  showb (Name c) = showb c
+
+instance IsString Name where
+  fromString = Name . fromString
+
+instance TextShow Identifier where
+  showb (Identifier e1 e2) = showb e1 <> "." <> showb e2
+
+-- Select Types
 data BooleanExpression = Or (Expression, Expression)
                        | And (Expression, Expression)
                        | Not Expression
@@ -52,11 +75,6 @@ data Select = Select
               , _fromClause  :: [FromRelation]
               , _whereClause :: Maybe BooleanExpression
               } deriving (Eq, Show)
-
-makeLenses ''Select
-makeLenses ''FromRelation
-makeLenses ''Column
-makeLenses ''Expression
 
 instance TextShow Expression where
   showb (IdentifierExp e) = showb e
@@ -101,23 +119,45 @@ instance IsString Column where
 instance IsString FromRelation where
   fromString e = FromRelation (NameExp $ fromString e) (fromString e)
 
-select :: Select
-select = Select ("*" :| []) [] Nothing
+-- Update types
+data Assignment = Assignment
+                  { _targetColumn :: Name
+                  , _assignmentValue :: Expression
+                  } deriving (Eq, Show)
 
-selectFrom :: Name -> Select
-selectFrom table = select & fromClause .~ [FromRelation (NameExp table) table]
+data Update = Update
+              { _updateTarget       :: Identifier
+              , _assignments  :: NonEmpty Assignment
+              , _updateFilter :: Maybe BooleanExpression
+              } deriving (Eq, Show)
 
-selectExp :: Expression -> Select
-selectExp expr = select & columns .~ (Column expr :| [])
+-- Insert types
+data ConflictAction = DoNothing
+                    | DoUpdate
+                      { _conflictAssignments :: NonEmpty Assignment
+                      , _conflictWhere :: Maybe BooleanExpression
+                      } deriving (Eq, Show)
 
-selectFunction :: T.Text -> [Expression] -> Select
-selectFunction fn parameters = selectExp $ FunctionExp (Name fn, parameters)
+data Insert = Insert
+              { _insertTarget       :: Identifier
+              , _insertColumns  :: NonEmpty Name
+              , _insertValues :: NonEmpty Expression
+              , _onConflict :: Maybe ConflictAction
+              } deriving (Eq, Show)
 
-setWhere :: BooleanExpression -> Select -> Select
-setWhere = set whereClause . Just
+instance TextShow Insert where
+  showb (Insert e1 e2 e3 e4) =
+    fromText $
+    "INSERT INTO "
+    <> showt e1
+    <> " ("
+    <> neWithCommas e2
+    <> ") VALUES ("
+    <> neWithCommas e3
+    <> ")"
 
-t :: BooleanExpression
-t = BoolLiteral True
+withCommas :: TextShow a => [a] -> T.Text
+withCommas = T.intercalate ", " . map showt
 
-f :: BooleanExpression
-f = BoolLiteral False
+neWithCommas :: TextShow a => NonEmpty a -> T.Text
+neWithCommas = withCommas . toList
