@@ -10,6 +10,7 @@ module Pasta.Types
     , Identifier (..)
     , Literal (..)
     , ConflictAction (..)
+    , Assignment (..)
     ) where
 
 import Data.List.NonEmpty (NonEmpty(..), toList)

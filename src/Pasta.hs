@@ -11,7 +11,9 @@ module Pasta
     , insertColumns
     , insertValues
     , onConflict
-    , ConflictAction (DoNothing)
+    , doNothing
+    , doUpdate
+    , (===)
     , conflictAssignments
     , conflictWhere
     , select
@@ -87,3 +89,14 @@ insert target cols vals = Insert (Identifier schema table) colNames valExps Noth
                else head qId
     colNames = Name <$> cols
     valExps = (LiteralExp . Literal) <$> vals
+
+doNothing :: Maybe ConflictAction
+doNothing = Just DoNothing
+
+doUpdate :: [Assignment] -> Maybe ConflictAction
+doUpdate [] = Nothing
+doUpdate assigns = Just $ DoUpdate (fromList assigns) Nothing
+
+(===) :: Name -> Expression -> Assignment
+(===) = Assignment
+

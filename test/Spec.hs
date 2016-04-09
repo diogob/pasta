@@ -29,10 +29,8 @@ main = hspec $ do
       showt (insert "foo" ("bar" :| []) ("qux" :| []))
       `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ($$qux$$);"
     it "should build insert command with on conflict" $
-      showt ((insert "foo" ("bar" :| []) ("qux" :| [])) & onConflict .~ Just DoNothing)
+      showt ((insert "foo" ("bar" :| []) ("qux" :| [])) & onConflict .~ doNothing)
       `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ($$qux$$) ON CONFLICT DO NOTHING;"
-{-
     it "should build insert command with on conflict update" $
-      showt ((insert "foo" ("bar" :| []) ("qux" :| [])) & onConflict .~ Just (DoUpdate ((Assignment "bar" "qux") :| []) Nothing))
-      `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ($$qux$$) ON CONFLICT DO NOTHING;"
--}
+      showt ((insert "foo" ("bar" :| []) ("qux" :| [])) & onConflict .~ doUpdate ["bar" === "qux"])
+      `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ($$qux$$) ON CONFLICT DO UPDATE SET \"bar\" = $$qux$$;"
