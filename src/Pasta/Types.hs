@@ -9,10 +9,12 @@ module Pasta.Types
     , Name (..)
     , Identifier (..)
     , Literal (..)
+    , ConflictAction (..)
     ) where
 
 import Data.List.NonEmpty (NonEmpty(..), toList)
 import Data.Monoid ((<>))
+import Data.Maybe (fromMaybe)
 import Data.String (IsString, fromString)
 import TextShow (TextShow, fromText, showb, showt)
 import qualified Data.Text as T
@@ -133,6 +135,9 @@ data Update = Update
               , _updateFilter :: Maybe BooleanExpression
               } deriving (Eq, Show)
 
+instance TextShow Assignment where
+  showb (Assignment e1 e2) = showb e1 <> " = " <> showb e2
+
 -- Insert types
 data ConflictAction = DoNothing
                     | DoUpdate
@@ -147,6 +152,11 @@ data Insert = Insert
               , _onConflict :: Maybe ConflictAction
               } deriving (Eq, Show)
 
+instance TextShow ConflictAction where
+  showb DoNothing = " ON CONFLICT DO NOTHING"
+  showb (DoUpdate e1 Nothing) = " ON CONFLICT DO UPDATE SET " <> fromText (neWithCommas e1)
+  showb (DoUpdate e1 (Just e2)) = " ON CONFLICT DO UPDATE SET " <> fromText (neWithCommas e1) <> " WHERE " <> showb e2
+
 instance TextShow Insert where
   showb (Insert e1 e2 e3 e4) =
     fromText $
@@ -156,7 +166,9 @@ instance TextShow Insert where
     <> neWithCommas e2
     <> ") VALUES ("
     <> neWithCommas e3
-    <> ");"
+    <> ")"
+    <> fromMaybe "" (showt <$> e4)
+    <> ";"
 
 withCommas :: TextShow a => [a] -> T.Text
 withCommas = T.intercalate ", " . map showt

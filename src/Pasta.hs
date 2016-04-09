@@ -11,6 +11,9 @@ module Pasta
     , insertColumns
     , insertValues
     , onConflict
+    , ConflictAction (DoNothing)
+    , conflictAssignments
+    , conflictWhere
     , select
     , selectExp
     , selectFrom
@@ -41,6 +44,7 @@ makeLenses ''Column
 makeLenses ''Expression
 makeLenses ''Update
 makeLenses ''Insert
+makeLenses ''ConflictAction
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select

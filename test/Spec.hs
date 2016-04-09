@@ -24,3 +24,15 @@ main = hspec $ do
   describe "selectFunction" $
     it "should build select version()" $
       showt (selectFunction "version" []) `shouldBe` "SELECT \"version\"();"
+  describe "insert" $ do
+    it "should build insert command" $
+      showt (insert "foo" ("bar" :| []) ("qux" :| []))
+      `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ($$qux$$);"
+    it "should build insert command with on conflict" $
+      showt ((insert "foo" ("bar" :| []) ("qux" :| [])) & onConflict .~ Just DoNothing)
+      `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ($$qux$$) ON CONFLICT DO NOTHING;"
+{-
+    it "should build insert command with on conflict update" $
+      showt ((insert "foo" ("bar" :| []) ("qux" :| [])) & onConflict .~ Just (DoUpdate ((Assignment "bar" "qux") :| []) Nothing))
+      `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ($$qux$$) ON CONFLICT DO NOTHING;"
+-}
