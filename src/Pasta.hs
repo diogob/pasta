@@ -17,6 +17,8 @@ module Pasta
     , (=:=)
     , (=.=)
     , (//)
+    , conflictTarget
+    , conflictAction
     , conflictAssignments
     , conflictWhere
     , select
@@ -49,6 +51,7 @@ makeLenses ''Column
 makeLenses ''Expression
 makeLenses ''Update
 makeLenses ''Insert
+makeLenses ''Conflict
 makeLenses ''ConflictAction
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
@@ -93,12 +96,15 @@ insert target cols vals = Insert (Identifier schema table) colNames valExps Noth
     colNames = Name <$> cols
     valExps = (LitExp . Literal) <$> vals
 
-doNothing :: Maybe ConflictAction
-doNothing = Just DoNothing
+doNothing :: Maybe Conflict
+doNothing = Just $ Conflict Nothing DoNothing
 
-doUpdate :: [Assignment] -> Maybe ConflictAction
-doUpdate [] = Nothing
-doUpdate assigns = Just $ DoUpdate (fromList assigns) Nothing
+doUpdate :: ConflictTarget -> [Assignment] -> Maybe Conflict
+doUpdate _ [] = Nothing
+doUpdate target assigns =
+  Just $
+  Conflict (Just target) $
+  DoUpdate (fromList assigns) Nothing
 
 (=:=) :: Name -> Expression -> Assignment
 (=:=) = Assignment

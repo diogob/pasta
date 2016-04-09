@@ -9,6 +9,8 @@ module Pasta.Types
     , Name (..)
     , Identifier (..)
     , Literal (..)
+    , Conflict (..)
+    , ConflictTarget (..)
     , ConflictAction (..)
     , Assignment (..)
     ) where
@@ -39,6 +41,7 @@ instance IsString Literal where
 
 instance TextShow Name where
   showb (Name "*") = "*"
+  showb (Name "EXCLUDED") = "EXCLUDED"
   showb (Name c) = showb c
 
 instance IsString Name where
@@ -140,6 +143,14 @@ instance TextShow Assignment where
   showb (Assignment e1 e2) = showb e1 <> " = " <> showb e2
 
 -- Insert types
+data ConflictTarget = OnConstraint Name
+                      deriving (Eq, Show)
+
+data Conflict = Conflict
+                { _conflictTarget :: Maybe ConflictTarget
+                , _conflictAction :: ConflictAction
+                } deriving (Eq, Show)
+
 data ConflictAction = DoNothing
                     | DoUpdate
                       { _conflictAssignments :: NonEmpty Assignment
@@ -147,16 +158,26 @@ data ConflictAction = DoNothing
                       } deriving (Eq, Show)
 
 data Insert = Insert
-              { _insertTarget       :: Identifier
-              , _insertColumns  :: NonEmpty Name
+              { _insertTarget :: Identifier
+              , _insertColumns :: NonEmpty Name
               , _insertValues :: NonEmpty Expression
-              , _onConflict :: Maybe ConflictAction
+              , _onConflict :: Maybe Conflict
               } deriving (Eq, Show)
 
+instance IsString ConflictTarget where
+  fromString = OnConstraint . fromString
+
+instance TextShow ConflictTarget where
+  showb (OnConstraint e1) = fromText $ "ON CONSTRAINT " <> showt e1
+
+instance TextShow Conflict where
+  showb (Conflict Nothing e1) = fromText $ " ON CONFLICT " <> showt e1
+  showb (Conflict (Just e1) e2) = fromText $ " ON CONFLICT " <> showt e1 <> " " <> showt e2
+
 instance TextShow ConflictAction where
-  showb DoNothing = " ON CONFLICT DO NOTHING"
-  showb (DoUpdate e1 Nothing) = " ON CONFLICT DO UPDATE SET " <> fromText (neWithCommas e1)
-  showb (DoUpdate e1 (Just e2)) = " ON CONFLICT DO UPDATE SET " <> fromText (neWithCommas e1) <> " WHERE " <> showb e2
+  showb DoNothing = "DO NOTHING"
+  showb (DoUpdate e1 Nothing) = "DO UPDATE SET " <> fromText (neWithCommas e1)
+  showb (DoUpdate e1 (Just e2)) = "DO UPDATE SET " <> fromText (neWithCommas e1) <> " WHERE " <> showb e2
 
 instance TextShow Insert where
   showb (Insert e1 e2 e3 e4) =
