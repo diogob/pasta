@@ -59,7 +59,7 @@ data Expression = IdentifierExp Identifier
                 | OperatorExp (Expression, Operator, Expression)
                 | FunctionExp (Name, [Expression])
                 | QueryExp Select
-                | LiteralExp Literal
+                | LitExp Literal
                 | NameExp Name
                 deriving (Eq, Show)
 
@@ -86,7 +86,7 @@ instance TextShow Expression where
   showb (OperatorExp (e1, Operator operator, e2)) = showb e1 <> " " <> fromText operator <> " " <> showb e2
   showb (FunctionExp (i, parameters)) = showb i <> "(" <> fromText (withCommas parameters) <> ")"
   showb (QueryExp e) = showb e
-  showb (LiteralExp e) = showb e
+  showb (LitExp e) = showb e
   showb (NameExp e) = showb e
 
 instance TextShow FromRelation where
@@ -116,7 +116,7 @@ instance TextShow BooleanExpression where
   showb (BoolLiteral False) = "false"
 
 instance IsString Expression where
-  fromString = LiteralExp . Literal . fromString
+  fromString = LitExp . Literal . fromString
 
 instance IsString Column where
   fromString = Column . NameExp . fromString

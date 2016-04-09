@@ -14,6 +14,9 @@ module Pasta
     , doNothing
     , doUpdate
     , (===)
+    , (=:=)
+    , (=.=)
+    , (//)
     , conflictAssignments
     , conflictWhere
     , select
@@ -50,7 +53,7 @@ makeLenses ''ConflictAction
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
-select = Select ((Column $ LiteralExp "NULL") :| []) [] Nothing
+select = Select ((Column $ LitExp "NULL") :| []) [] Nothing
 
 -- | Builds a SELECT * FROM table statement.
 selectFrom :: Name -> Select
@@ -88,7 +91,7 @@ insert target cols vals = Insert (Identifier schema table) colNames valExps Noth
                then qId!!1
                else head qId
     colNames = Name <$> cols
-    valExps = (LiteralExp . Literal) <$> vals
+    valExps = (LitExp . Literal) <$> vals
 
 doNothing :: Maybe ConflictAction
 doNothing = Just DoNothing
@@ -97,6 +100,14 @@ doUpdate :: [Assignment] -> Maybe ConflictAction
 doUpdate [] = Nothing
 doUpdate assigns = Just $ DoUpdate (fromList assigns) Nothing
 
-(===) :: Name -> Expression -> Assignment
-(===) = Assignment
+(=:=) :: Name -> Expression -> Assignment
+(=:=) = Assignment
 
+(===) :: Name -> Name -> Assignment
+(===) = flip $ flip (=:=) . NameExp
+
+(=.=) :: Name -> Identifier -> Assignment
+(=.=) = flip $ flip (=:=) . IdentifierExp
+
+(//) :: Name -> Name -> Identifier
+(//) = Identifier
