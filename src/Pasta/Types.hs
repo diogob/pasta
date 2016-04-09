@@ -28,6 +28,7 @@ data Identifier = Identifier
                } deriving (Eq, Show)
 
 instance TextShow Literal where
+  showb (Literal "NULL") = "NULL"
   showb (Literal e) = "$$" <> fromText e <> "$$"
 
 instance IsString Literal where
@@ -97,6 +98,7 @@ instance TextShow Select where
     sel <> case w of
         Just ex -> " WHERE " <> showb ex
         Nothing -> ""
+    <> ";"
     where sel = "SELECT " <> fromText (neWithCommas c) <>
                    if null fr
                       then ""
@@ -154,7 +156,7 @@ instance TextShow Insert where
     <> neWithCommas e2
     <> ") VALUES ("
     <> neWithCommas e3
-    <> ")"
+    <> ");"
 
 withCommas :: TextShow a => [a] -> T.Text
 withCommas = T.intercalate ", " . map showt

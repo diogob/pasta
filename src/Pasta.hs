@@ -16,6 +16,7 @@ module Pasta
     , selectFrom
     , selectFunction
     , alias
+    , columns
     , expression
     , t
     , f
@@ -41,24 +42,31 @@ makeLenses ''Expression
 makeLenses ''Update
 makeLenses ''Insert
 
+-- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
-select = Select ("*" :| []) [] Nothing
+select = Select ((Column $ LiteralExp "NULL") :| []) [] Nothing
 
+-- | Builds a SELECT * FROM table statement.
 selectFrom :: Name -> Select
-selectFrom table = select & fromClause .~ [FromRelation (NameExp table) table]
+selectFrom table = select & columns .~ ("*" :| []) & fromClause .~ [FromRelation (NameExp table) table]
 
+-- | Builds a SELECT expression with neither FROM nor WHERE clauses
 selectExp :: Expression -> Select
 selectExp expr = select & columns .~ (Column expr :| [])
 
+-- | Builds a SELECT fn(parameters) with neither FROM nor WHERE clauses
 selectFunction :: T.Text -> [Expression] -> Select
 selectFunction fn parameters = selectExp $ FunctionExp (Name fn, parameters)
 
+-- | Just a convenient set whereClause composed with a Just
 setWhere :: BooleanExpression -> Select -> Select
 setWhere = set whereClause . Just
 
+-- | Just a convenient way to write a BoolLiteral True
 t :: BooleanExpression
 t = BoolLiteral True
 
+-- | Just a convenient way to write a BoolLiteral False
 f :: BooleanExpression
 f = BoolLiteral False
 
