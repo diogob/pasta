@@ -34,7 +34,7 @@ data Identifier = Identifier
 
 instance TextShow Literal where
   showb (Literal "NULL") = "NULL"
-  showb (Literal e) = "$$" <> fromText e <> "$$"
+  showb (Literal e) = fromText (pgFmtLit e)
 
 instance IsString Literal where
   fromString = Literal . fromString
@@ -42,7 +42,7 @@ instance IsString Literal where
 instance TextShow Name where
   showb (Name "*") = "*"
   showb (Name "EXCLUDED") = "EXCLUDED"
-  showb (Name c) = showb c
+  showb (Name c) = fromText $ pgFmtIdent c
 
 instance IsString Name where
   fromString = Name . fromString
@@ -197,3 +197,18 @@ withCommas = T.intercalate ", " . map showt
 
 neWithCommas :: TextShow a => NonEmpty a -> T.Text
 neWithCommas = withCommas . toList
+
+pgFmtIdent :: T.Text -> T.Text
+pgFmtIdent x = "\"" <> T.replace "\"" "\"\"" (trimNullChars x) <> "\""
+
+pgFmtLit :: T.Text -> T.Text
+pgFmtLit x =
+ let trimmed = trimNullChars x
+     escaped = "'" <> T.replace "'" "''" trimmed <> "'"
+     slashed = T.replace "\\" "\\\\" escaped in
+ if "\\" `T.isInfixOf` escaped
+   then "E" <> slashed
+   else slashed
+
+trimNullChars :: T.Text -> T.Text
+trimNullChars = T.takeWhile (/= '\x0')
