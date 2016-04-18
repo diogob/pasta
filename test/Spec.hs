@@ -1,7 +1,7 @@
 import Test.Hspec
 
 import Pasta
-import Control.Lens
+import Lens.Micro
 
 main :: IO ()
 main = hspec $ do

@@ -2,7 +2,7 @@ module Main where
 
 import Pasta
 import TextShow (printT)
-import Control.Lens
+import Lens.Micro
 
 main :: IO ()
 main = do

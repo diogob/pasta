@@ -40,7 +40,8 @@ module Pasta
     ) where
 
 import Pasta.Types
-import Control.Lens
+import Lens.Micro
+import Lens.Micro.TH
 import Data.List.NonEmpty (NonEmpty(..), fromList)
 import TextShow (showt)
 import qualified Data.Text as T
