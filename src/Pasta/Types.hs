@@ -44,6 +44,9 @@ instance TextShow Name where
   showb (Name "EXCLUDED") = "EXCLUDED"
   showb (Name c) = fromText $ pgFmtIdent c
 
+instance TextShow Operator where
+  showb (Operator op) = fromText op
+
 instance IsString Name where
   fromString = Name . fromString
 
@@ -51,15 +54,18 @@ instance TextShow Identifier where
   showb (Identifier e1 e2) = showb e1 <> "." <> showb e2
 
 -- Select Types
-data BooleanExpression = Or (Expression, Expression)
-                       | And (Expression, Expression)
-                       | Not Expression
+data BooleanExpression = Or BooleanExpression BooleanExpression
+                       | And BooleanExpression BooleanExpression
+                       | Not BooleanExpression
                        | BoolLiteral Bool
+                       | Exists Select
+                       | In Identifier Select
+                       | Comparison Expression Operator Expression
                        deriving (Eq, Show)
 
 data Expression = IdentifierExp Identifier
                 | BoolExp BooleanExpression
-                | OperatorExp (Expression, Operator, Expression)
+                | OperatorExp Expression Operator Expression
                 | FunctionExp (Name, [Expression])
                 | QueryExp Select
                 | LitExp Literal
@@ -86,7 +92,7 @@ data Select = Select
 instance TextShow Expression where
   showb (IdentifierExp e) = showb e
   showb (BoolExp e) = showb e
-  showb (OperatorExp (e1, Operator operator, e2)) = showb e1 <> " " <> fromText operator <> " " <> showb e2
+  showb (OperatorExp e1 (Operator operator) e2) = showb e1 <> " " <> fromText operator <> " " <> showb e2
   showb (FunctionExp (i, parameters)) = showb i <> "(" <> fromText (withCommas parameters) <> ")"
   showb (QueryExp e) = showb e
   showb (LitExp e) = showb e
@@ -104,7 +110,6 @@ instance TextShow Select where
     sel <> case w of
         Just ex -> " WHERE " <> showb ex
         Nothing -> ""
-    <> ";"
     where sel = "SELECT " <> fromText (neWithCommas c) <>
                    if null fr
                       then ""
@@ -112,11 +117,14 @@ instance TextShow Select where
                     <> fromText (withCommas fr)
 
 instance TextShow BooleanExpression where
-  showb (Or (e1, e2)) = showb e1 <> " OR " <> showb e2
-  showb (And (e1, e2)) = showb e1 <> " AND " <> showb e2
+  showb (Or e1 e2) = showb e1 <> " OR " <> showb e2
+  showb (And e1 e2) = showb e1 <> " AND " <> showb e2
   showb (Not e) = "NOT " <> showb e
   showb (BoolLiteral True) = "true"
   showb (BoolLiteral False) = "false"
+  showb (Exists e) = "EXISTS (" <> showb e <> ")"
+  showb (In e s) = showb e <> " IN (" <> showb s <> ")"
+  showb (Comparison e1 op e2) = showb e1 <> " " <> showb op <> " " <> showb e2
 
 instance IsString Expression where
   fromString = LitExp . Literal . fromString
@@ -190,7 +198,6 @@ instance TextShow Insert where
     <> neWithCommas e3
     <> ")"
     <> fromMaybe "" (showt <$> e4)
-    <> ";"
 
 withCommas :: TextShow a => [a] -> T.Text
 withCommas = T.intercalate ", " . map showt

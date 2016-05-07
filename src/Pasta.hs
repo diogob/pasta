@@ -37,6 +37,10 @@ module Pasta
     , showt
     , NonEmpty (..)
     , fromList
+    , BooleanExpression(Not, In)
+    , (|.|)
+    , (&.&)
+    , (.!)
     ) where
 
 import Pasta.Types
@@ -118,3 +122,13 @@ doUpdate target assigns =
 
 (//) :: Name -> Name -> Identifier
 (//) = Identifier
+
+(|.|) :: BooleanExpression -> BooleanExpression -> BooleanExpression
+(|.|) = Or
+
+(&.&) :: BooleanExpression -> BooleanExpression -> BooleanExpression
+(&.&) = And
+
+infixr 0 .!
+(.!) :: BooleanExpression -> BooleanExpression
+(.!) = Not
