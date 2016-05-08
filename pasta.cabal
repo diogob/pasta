@@ -19,10 +19,10 @@ library
   exposed-modules:     Pasta
   other-modules:       Pasta.Types
   build-depends:       base >= 4.7 && < 5
-                     , microlens
-                     , microlens-th
-                     , text
-                     , text-show
+                     , microlens >= 0.4 && < 0.5
+                     , microlens-th >= 0.3 && < 0.4
+                     , text >= 1.2 && < 1.3
+                     , text-show >= 2.1 && < 2.2
                      , semigroups >= 0.18
   default-language:    Haskell2010
   default-extensions:  OverloadedStrings, ScopedTypeVariables, TemplateHaskell
@@ -32,9 +32,9 @@ executable pasta-exe
   main-is:             Main.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base >= 4.7 && < 5
-                     , microlens
-                     , text
-                     , text-show
+                     , microlens >= 0.4 && < 0.5
+                     , text >= 1.2 && < 1.3
+                     , text-show >= 2.1 && < 2.2
                      , pasta
   default-language:    Haskell2010
   default-extensions:  OverloadedStrings, ScopedTypeVariables
