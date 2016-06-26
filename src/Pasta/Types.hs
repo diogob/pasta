@@ -15,12 +15,12 @@ module Pasta.Types
     , Assignment (..)
     ) where
 
-import Data.List.NonEmpty (NonEmpty(..), toList)
-import Data.Monoid ((<>))
-import Data.Maybe (fromMaybe)
-import Data.String (IsString, fromString)
-import TextShow (TextShow, fromText, showb, showt)
-import qualified Data.Text as T
+import           Data.List.NonEmpty (NonEmpty (..), toList)
+import           Data.Maybe         (fromMaybe)
+import           Data.Monoid        ((<>))
+import           Data.String        (IsString, fromString)
+import qualified Data.Text          as T
+import           TextShow           (TextShow, fromText, showb, showt)
 
 -- Base types
 newtype Operator = Operator T.Text deriving (Eq, Show)
@@ -137,12 +137,12 @@ instance IsString FromRelation where
 
 -- Update types
 data Assignment = Assignment
-                  { _targetColumn :: Name
+                  { _targetColumn    :: Name
                   , _assignmentValue :: Expression
                   } deriving (Eq, Show)
 
 data Update = Update
-              { _updateTarget       :: Identifier
+              { _updateTarget :: Identifier
               , _assignments  :: NonEmpty Assignment
               , _updateFilter :: Maybe BooleanExpression
               } deriving (Eq, Show)
@@ -162,14 +162,14 @@ data Conflict = Conflict
 data ConflictAction = DoNothing
                     | DoUpdate
                       { _conflictAssignments :: NonEmpty Assignment
-                      , _conflictWhere :: Maybe BooleanExpression
+                      , _conflictWhere       :: Maybe BooleanExpression
                       } deriving (Eq, Show)
 
 data Insert = Insert
-              { _insertTarget :: Identifier
+              { _insertTarget  :: Identifier
               , _insertColumns :: NonEmpty Name
-              , _insertValues :: NonEmpty Expression
-              , _onConflict :: Maybe Conflict
+              , _insertValues  :: NonEmpty Expression
+              , _onConflict    :: Maybe Conflict
               } deriving (Eq, Show)
 
 instance IsString ConflictTarget where
