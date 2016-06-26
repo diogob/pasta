@@ -45,9 +45,8 @@ main = hspec $ do
     it "should build update with returning *" $
       showt (update "foo" ("bar" :| []) ("qux" :| []) & updateReturning .~ ["*"])
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' RETURNING *"
-  {-
-    it "should build insert command with on conflict update using names" $
-      showt (insert "foo" ("bar" :| []) ("qux" :| [])
-             & onConflict .~ doUpdate ["bar" === "qux"])
-      `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ('qux') ON CONFLICT DO UPDATE SET \"bar\" = \"qux\";"
+{-
+    it "should build update with function and operator" $
+      showt (update "foo" ("bar" :| []) ("qux" :| []) & setWhere (LitExp "1 week"))
+      `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE age(ts) > '1 week'"
 -}

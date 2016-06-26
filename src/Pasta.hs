@@ -94,19 +94,19 @@ f = BoolLiteral False
 insert :: T.Text -> NonEmpty T.Text -> NonEmpty T.Text -> Insert
 insert target cols vals = Insert (Identifier schema table) colNames valExps Nothing
   where
-    qId = Name <$> T.split (=='.') target
-    schema = if length qId == 2
-               then head qId
-               else "public"
-    table = if length qId == 2
-               then qId!!1
-               else head qId
+    (schema, table) = splitTarget target
     colNames = Name <$> cols
     valExps = (LitExp . Literal) <$> vals
 
 -- | Builds an UPDATE statement using a target, a non-empty list of column names and a non-empty list of values
 update :: T.Text -> NonEmpty T.Text -> NonEmpty Expression -> Update
 update target cols vals = Update (Identifier schema table) assigns Nothing []
+  where
+    (schema, table) = splitTarget target
+    assigns = NE.zipWith Assignment (Name <$> cols) vals
+
+splitTarget :: T.Text -> (Name, Name)
+splitTarget target = (schema, table)
   where
     qId = Name <$> T.split (=='.') target
     schema = if length qId == 2
@@ -115,8 +115,6 @@ update target cols vals = Update (Identifier schema table) assigns Nothing []
     table = if length qId == 2
                then qId!!1
                else head qId
-    colNames = Name <$> cols
-    assigns = NE.zipWith Assignment colNames vals
 
 doNothing :: Maybe Conflict
 doNothing = Just $ Conflict Nothing DoNothing
