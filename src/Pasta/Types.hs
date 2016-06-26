@@ -145,6 +145,7 @@ data Update = Update
               { _updateTarget :: Identifier
               , _assignments  :: NonEmpty Assignment
               , _updateFilter :: Maybe BooleanExpression
+              , _updateReturning :: [Column]
               } deriving (Eq, Show)
 
 instance TextShow Assignment where
@@ -198,6 +199,19 @@ instance TextShow Insert where
     <> neWithCommas e3
     <> ")"
     <> fromMaybe "" (showt <$> e4)
+
+instance TextShow Update where
+  showb (Update e1 e2 e3 e4) =
+    fromText $
+    "UPDATE "
+    <> showt e1
+    <> " SET "
+    <> neWithCommas e2
+    <> fromMaybe "" (showt <$> e3)
+    <> if null e4
+          then ""
+          else " RETURNING "
+    <> withCommas e4
 
 withCommas :: TextShow a => [a] -> T.Text
 withCommas = T.intercalate ", " . map showt
