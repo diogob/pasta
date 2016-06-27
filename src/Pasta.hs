@@ -105,17 +105,6 @@ update target cols vals = Update (Identifier schema table) assigns Nothing []
     (schema, table) = splitTarget target
     assigns = NE.zipWith Assignment (Name <$> cols) vals
 
-splitTarget :: T.Text -> (Name, Name)
-splitTarget target = (schema, table)
-  where
-    qId = Name <$> T.split (=='.') target
-    schema = if length qId == 2
-               then head qId
-               else "public"
-    table = if length qId == 2
-               then qId!!1
-               else head qId
-
 doNothing :: Maybe Conflict
 doNothing = Just $ Conflict Nothing DoNothing
 
@@ -147,3 +136,16 @@ doUpdate target assigns =
 infixr 0 .!
 (.!) :: BooleanExpression -> BooleanExpression
 (.!) = Not
+
+-- private functions
+
+splitTarget :: T.Text -> (Name, Name)
+splitTarget target = (schema, table)
+  where
+    qId = Name <$> T.split (=='.') target
+    schema = if length qId == 2
+               then head qId
+               else "public"
+    table = if length qId == 2
+               then qId!!1
+               else head qId
