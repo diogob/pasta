@@ -124,7 +124,7 @@ instance TextShow BooleanExpression where
   showb (BoolLiteral False) = "false"
   showb (Exists e) = "EXISTS (" <> showb e <> ")"
   showb (In e s) = showb e <> " IN (" <> showb s <> ")"
-  showb (Comparison e1 op e2) = showb e1 <> " " <> showb op <> " " <> showb e2
+  showb (Comparison op e1 e2) = showb e1 <> " " <> showb op <> " " <> showb e2
 
 instance IsString Expression where
   fromString = LitExp . Literal . fromString
@@ -207,7 +207,9 @@ instance TextShow Update where
     <> showt e1
     <> " SET "
     <> neWithCommas e2
-    <> fromMaybe "" (showt <$> e3)
+    <> case e3 of
+        Just ex -> " WHERE " <> showt ex
+        Nothing -> ""
     <> if null e4
           then ""
           else " RETURNING "

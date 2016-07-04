@@ -1,6 +1,7 @@
 import Test.Hspec
 
 import Pasta
+import Protolude hiding ((&))
 import Lens.Micro
 
 main :: IO ()
@@ -45,6 +46,9 @@ main = hspec $ do
     it "should build update with returning *" $
       showt (update "foo" ("bar" :| []) ("qux" :| []) & updateReturning .~ ["*"])
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' RETURNING *"
+    it "should build update with condition" $
+      showt (update "foo" ("bar" :| []) ("qux" :| []) & setUpdateFilter ("foo"//"bar" `eq` "baz"))
+      `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE \"foo\".\"bar\" = 'baz'"
 {-
     it "should build update with function and operator" $
       showt (update "foo" ("bar" :| []) ("qux" :| []) & setWhere (LitExp "1 week"))

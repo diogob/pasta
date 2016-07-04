@@ -48,9 +48,10 @@ test-suite pasta-test
                      , pasta
                      , hspec >= 2.2
                      , microlens
+                     , protolude >= 0.1
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
-  default-extensions:  OverloadedStrings, ScopedTypeVariables
+  default-extensions:  OverloadedStrings, ScopedTypeVariables, NoImplicitPrelude
 
 source-repository head
   type:     git

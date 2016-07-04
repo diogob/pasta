@@ -36,6 +36,7 @@ module Pasta
     , relationAlias
     , relationExpression
     , setWhere
+    , setUpdateFilter
     , showt
     , NonEmpty (..)
     , fromList
@@ -44,6 +45,11 @@ module Pasta
     , (&.&)
     , (.!)
     , cmp
+    , eq
+    , gt
+    , lt
+    , gte
+    , lte
     ) where
 
 import Protolude hiding ((&))
@@ -68,6 +74,21 @@ makeLenses ''ConflictAction
 cmp :: Operator -> Expression -> Expression -> BooleanExpression
 cmp = Comparison
 
+eq :: Identifier -> Expression -> BooleanExpression
+eq = cmp (Operator "=") . IdentifierExp
+
+gt :: Identifier -> Expression -> BooleanExpression
+gt = cmp (Operator ">") . IdentifierExp
+
+lt :: Identifier -> Expression -> BooleanExpression
+lt = cmp (Operator "<") . IdentifierExp
+
+gte :: Identifier -> Expression -> BooleanExpression
+gte = cmp (Operator ">=") . IdentifierExp
+
+lte :: Identifier -> Expression -> BooleanExpression
+lte = cmp (Operator "<=") . IdentifierExp
+
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
 select = Select ((Column $ LitExp "NULL") :| []) [] Nothing
@@ -84,9 +105,12 @@ selectExp expr = select & columns .~ (Column expr :| [])
 selectFunction :: T.Text -> [Expression] -> Select
 selectFunction fn parameters = selectExp $ FunctionExp (Name fn, parameters)
 
--- | Just a convenient set whereClause composed with a Just
+-- | Set a whereClause in a Select statement
 setWhere :: BooleanExpression -> Select -> Select
 setWhere = set whereClause . Just
+
+setUpdateFilter :: BooleanExpression -> Update -> Update
+setUpdateFilter = set updateFilter . Just
 
 -- | Just a convenient way to write a BoolLiteral True
 t :: BooleanExpression
