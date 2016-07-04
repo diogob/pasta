@@ -15,9 +15,7 @@ module Pasta
     , onConflict
     , doNothing
     , doUpdate
-    , (===)
-    , (=:=)
-    , (=.=)
+    , (.=)
     , (//)
     , conflictTarget
     , conflictAction
@@ -41,8 +39,8 @@ module Pasta
     , NonEmpty (..)
     , fromList
     , BooleanExpression(Not, In)
-    , (|.|)
-    , (&.&)
+    , (.|)
+    , (.&)
     , (.!)
     , cmp
     , eq
@@ -150,23 +148,17 @@ doUpdate target assigns =
   Conflict (Just target) $
   DoUpdate (fromList assigns) Nothing
 
-(=:=) :: Name -> Expression -> Assignment
-(=:=) = Assignment
-
-(===) :: Name -> Name -> Assignment
-(===) = flip $ flip (=:=) . NameExp
-
-(=.=) :: Name -> Identifier -> Assignment
-(=.=) = flip $ flip (=:=) . IdentifierExp
+(.=) :: Name -> Expression -> Assignment
+(.=) = Assignment
 
 (//) :: Name -> Name -> Identifier
 (//) = Identifier
 
-(|.|) :: BooleanExpression -> BooleanExpression -> BooleanExpression
-(|.|) = Or
+(.|) :: BooleanExpression -> BooleanExpression -> BooleanExpression
+(.|) = Or
 
-(&.&) :: BooleanExpression -> BooleanExpression -> BooleanExpression
-(&.&) = And
+(.&) :: BooleanExpression -> BooleanExpression -> BooleanExpression
+(.&) = And
 
 infixr 0 .!
 (.!) :: BooleanExpression -> BooleanExpression

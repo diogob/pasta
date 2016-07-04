@@ -37,7 +37,7 @@ main = hspec $ do
       showt (insert "foo" ("bar" :| []) ("qux" :| []) & onConflict .~ doNothing)
       `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ('qux') ON CONFLICT DO NOTHING"
     it "should build insert command with on conflict update using literals" $
-      showt (insert "foo" ("bar" :| []) ("qux" :| []) & onConflict .~ doUpdate "pkey" ["bar" =:= "qux"])
+      showt (insert "foo" ("bar" :| []) ("qux" :| []) & onConflict .~ doUpdate "pkey" ["bar" .= "qux"])
       `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ('qux') ON CONFLICT ON CONSTRAINT \"pkey\" DO UPDATE SET \"bar\" = 'qux'"
   describe "update" $ do
     it "should build update" $
