@@ -12,4 +12,3 @@ main = do
   printT $ select
     & fromClause .~ ["table1", "table2"]
     & setWhere t
-  printT $ selectFunction "version" []

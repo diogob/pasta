@@ -66,7 +66,7 @@ data BooleanExpression = Or BooleanExpression BooleanExpression
 data Expression = IdentifierExp Identifier
                 | BoolExp BooleanExpression
                 | OperatorExp Expression Operator Expression
-                | FunctionExp (Name, [Expression])
+                | FunctionExp Identifier [Expression]
                 | QueryExp Select
                 | LitExp Literal
                 | NameExp Name
@@ -93,7 +93,7 @@ instance TextShow Expression where
   showb (IdentifierExp e) = showb e
   showb (BoolExp e) = showb e
   showb (OperatorExp e1 (Operator operator) e2) = showb e1 <> " " <> fromText operator <> " " <> showb e2
-  showb (FunctionExp (i, parameters)) = showb i <> "(" <> fromText (withCommas parameters) <> ")"
+  showb (FunctionExp i parameters) = showb i <> "(" <> fromText (withCommas parameters) <> ")"
   showb (QueryExp e) = showb e
   showb (LitExp e) = showb e
   showb (NameExp e) = showb e

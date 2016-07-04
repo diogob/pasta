@@ -28,7 +28,7 @@ main = hspec $ do
       `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE NOT \"table1\".\"c\" IN (SELECT * FROM \"sub\" \"sub\")"
   describe "selectFunction" $
     it "should build select version()" $
-      showt (selectFunction "version" []) `shouldBe` "SELECT \"version\"()"
+      showt (selectFunction ("public"//"version") []) `shouldBe` "SELECT \"public\".\"version\"()"
   describe "insert" $ do
     it "should build insert command" $
       showt (insert "foo" ("bar" :| []) ("qux" :| []))

@@ -50,6 +50,7 @@ module Pasta
     , lt
     , gte
     , lte
+    , fn
     ) where
 
 import Protolude hiding ((&))
@@ -102,8 +103,12 @@ selectExp :: Expression -> Select
 selectExp expr = select & columns .~ (Column expr :| [])
 
 -- | Builds a SELECT fn(parameters) with neither FROM nor WHERE clauses
-selectFunction :: T.Text -> [Expression] -> Select
-selectFunction fn parameters = selectExp $ FunctionExp (Name fn, parameters)
+selectFunction :: Identifier -> [Expression] -> Select
+selectFunction fnId parameters = selectExp $ fn fnId parameters
+
+-- | Builds a function
+fn :: Identifier -> [Expression] -> Expression
+fn = FunctionExp
 
 -- | Set a whereClause in a Select statement
 setWhere :: BooleanExpression -> Select -> Select
