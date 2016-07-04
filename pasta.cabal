@@ -24,8 +24,9 @@ library
                      , text >= 1.2 && < 1.3
                      , text-show >= 2.1 && < 2.2
                      , semigroups >= 0.18
+                     , protolude >= 0.1
   default-language:    Haskell2010
-  default-extensions:  OverloadedStrings, ScopedTypeVariables, TemplateHaskell
+  default-extensions:  OverloadedStrings, ScopedTypeVariables, TemplateHaskell, NoImplicitPrelude
 
 executable pasta-exe
   hs-source-dirs:      app

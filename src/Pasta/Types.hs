@@ -13,12 +13,12 @@ module Pasta.Types
     , ConflictTarget (..)
     , ConflictAction (..)
     , Assignment (..)
+    , Operator (..)
     ) where
 
+import           Protolude hiding (toList)
 import           Data.List.NonEmpty (NonEmpty (..), toList)
-import           Data.Maybe         (fromMaybe)
-import           Data.Monoid        ((<>))
-import           Data.String        (IsString, fromString)
+import           Data.String        (fromString)
 import qualified Data.Text          as T
 import           TextShow           (TextShow, fromText, showb, showt)
 
@@ -60,7 +60,7 @@ data BooleanExpression = Or BooleanExpression BooleanExpression
                        | BoolLiteral Bool
                        | Exists Select
                        | In Identifier Select
-                       | Comparison Expression Operator Expression
+                       | Comparison Operator Expression Expression
                        deriving (Eq, Show)
 
 data Expression = IdentifierExp Identifier

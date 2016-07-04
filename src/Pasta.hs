@@ -43,8 +43,10 @@ module Pasta
     , (|.|)
     , (&.&)
     , (.!)
+    , cmp
     ) where
 
+import Protolude hiding ((&))
 import Pasta.Types
 import Lens.Micro
 import Lens.Micro.TH
@@ -61,6 +63,10 @@ makeLenses ''Update
 makeLenses ''Insert
 makeLenses ''Conflict
 makeLenses ''ConflictAction
+
+-- | Builds a BooleanExpression out of an operator and 2 expressions
+cmp :: Operator -> Expression -> Expression -> BooleanExpression
+cmp = Comparison
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
@@ -143,9 +149,10 @@ splitTarget :: T.Text -> (Name, Name)
 splitTarget target = (schema, table)
   where
     qId = Name <$> T.split (=='.') target
-    schema = if length qId == 2
-               then head qId
-               else "public"
-    table = if length qId == 2
-               then qId!!1
-               else head qId
+    schema = case qId of
+              [s, _] -> s
+              _ -> "public"
+    table = case qId of
+              [_, tbl] -> tbl
+              [tbl] -> tbl
+              _ -> ""
