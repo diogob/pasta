@@ -38,6 +38,7 @@ module Pasta
     , showt
     , NonEmpty (..)
     , fromList
+    , Expression(Null)
     , BooleanExpression(Not, In)
     , (.|)
     , (.&)
@@ -90,7 +91,7 @@ lte = cmp (Operator "<=") . IdentifierExp
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
-select = Select ((Column $ LitExp "NULL") :| []) [] Nothing
+select = Select (Column Null :| []) [] Nothing
 
 -- | Builds a SELECT * FROM table statement.
 selectFrom :: Name -> Select

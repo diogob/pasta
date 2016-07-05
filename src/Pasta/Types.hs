@@ -33,7 +33,6 @@ data Identifier = Identifier
                } deriving (Eq, Show)
 
 instance TextShow Literal where
-  showb (Literal "NULL") = "NULL"
   showb (Literal e) = fromText (pgFmtLit e)
 
 instance IsString Literal where
@@ -70,6 +69,7 @@ data Expression = IdentifierExp Identifier
                 | QueryExp Select
                 | LitExp Literal
                 | NameExp Name
+                | Null
                 deriving (Eq, Show)
 
 data Column = Column Expression
@@ -97,6 +97,7 @@ instance TextShow Expression where
   showb (QueryExp e) = showb e
   showb (LitExp e) = showb e
   showb (NameExp e) = showb e
+  showb Null = "NULL"
 
 instance TextShow FromRelation where
   showb (FromRelation e a) = showb e <> " " <> showb a
