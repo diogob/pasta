@@ -91,7 +91,7 @@ lte = cmp (Operator "<=") . IdentifierExp
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
-select = Select (Column Null :| []) [] Nothing
+select = Select (Column Null :| []) [] t
 
 -- | Builds a SELECT * FROM table statement.
 selectFrom :: Name -> Select
@@ -111,10 +111,10 @@ fn = FunctionExp
 
 -- | Set a whereClause in a Select statement
 setWhere :: BooleanExpression -> Select -> Select
-setWhere = set whereClause . Just
+setWhere = set whereClause
 
 setUpdateFilter :: BooleanExpression -> Update -> Update
-setUpdateFilter = set updateFilter . Just
+setUpdateFilter = set updateFilter
 
 -- | Just a convenient way to write a BoolLiteral True
 t :: BooleanExpression
@@ -134,7 +134,7 @@ insert target cols vals = Insert (Identifier schema table) colNames valExps Noth
 
 -- | Builds an UPDATE statement using a target, a non-empty list of column names and a non-empty list of values
 update :: T.Text -> NonEmpty T.Text -> NonEmpty Expression -> Update
-update target cols vals = Update (Identifier schema table) assigns Nothing []
+update target cols vals = Update (Identifier schema table) assigns t []
   where
     (schema, table) = splitTarget target
     assigns = NE.zipWith Assignment (Name <$> cols) vals
@@ -147,7 +147,7 @@ doUpdate _ [] = Nothing
 doUpdate target assigns =
   Just $
   Conflict (Just target) $
-  DoUpdate (fromList assigns) Nothing
+  DoUpdate (fromList assigns) t
 
 (.=) :: Name -> Expression -> Assignment
 (.=) = Assignment

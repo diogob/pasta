@@ -86,7 +86,7 @@ data FromRelation = FromRelation
 data Select = Select
               { _columns     :: NonEmpty Column
               , _fromClause  :: [FromRelation]
-              , _whereClause :: Maybe BooleanExpression
+              , _whereClause :: BooleanExpression
               } deriving (Eq, Show)
 
 instance TextShow Expression where
@@ -108,9 +108,7 @@ instance TextShow Column where
 
 instance TextShow Select where
   showb (Select c fr w) =
-    sel <> case w of
-        Just ex -> " WHERE " <> showb ex
-        Nothing -> ""
+    sel <> " WHERE " <> showb w
     where sel = "SELECT " <> fromText (neWithCommas c) <>
                    if null fr
                       then ""
@@ -145,7 +143,7 @@ data Assignment = Assignment
 data Update = Update
               { _updateTarget :: Identifier
               , _assignments  :: NonEmpty Assignment
-              , _updateFilter :: Maybe BooleanExpression
+              , _updateFilter :: BooleanExpression
               , _updateReturning :: [Column]
               } deriving (Eq, Show)
 
@@ -164,7 +162,7 @@ data Conflict = Conflict
 data ConflictAction = DoNothing
                     | DoUpdate
                       { _conflictAssignments :: NonEmpty Assignment
-                      , _conflictWhere       :: Maybe BooleanExpression
+                      , _conflictWhere       :: BooleanExpression
                       } deriving (Eq, Show)
 
 data Insert = Insert
@@ -186,8 +184,7 @@ instance TextShow Conflict where
 
 instance TextShow ConflictAction where
   showb DoNothing = "DO NOTHING"
-  showb (DoUpdate e1 Nothing) = "DO UPDATE SET " <> fromText (neWithCommas e1)
-  showb (DoUpdate e1 (Just e2)) = "DO UPDATE SET " <> fromText (neWithCommas e1) <> " WHERE " <> showb e2
+  showb (DoUpdate e1 e2) = "DO UPDATE SET " <> fromText (neWithCommas e1) <> " WHERE " <> showb e2
 
 instance TextShow Insert where
   showb (Insert e1 e2 e3 e4) =
@@ -208,9 +205,7 @@ instance TextShow Update where
     <> showt e1
     <> " SET "
     <> neWithCommas e2
-    <> case e3 of
-        Just ex -> " WHERE " <> showt ex
-        Nothing -> ""
+    <> " WHERE " <> showt e3
     <> if null e4
           then ""
           else " RETURNING "
