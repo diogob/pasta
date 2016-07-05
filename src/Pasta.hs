@@ -31,7 +31,7 @@ module Pasta
     , expression
     , t
     , f
-    , fromClause
+    , fromRelations
     , relationAlias
     , relationExpression
     , showt
@@ -94,7 +94,7 @@ select = Select (Column Null :| []) [] t
 
 -- | Builds a SELECT * FROM table statement.
 selectFrom :: Name -> Select
-selectFrom table = select & columns .~ ("*" :| []) & fromClause .~ [FromRelation (NameExp table) table]
+selectFrom table = select & columns .~ ("*" :| []) & fromRelations .~ [FromRelation (NameExp table) table]
 
 -- | Builds a SELECT expression with neither FROM nor WHERE clauses
 selectExp :: Expression -> Select

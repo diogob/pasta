@@ -85,7 +85,7 @@ data FromRelation = FromRelation
 
 data Select = Select
               { _columns     :: NonEmpty Column
-              , _fromClause  :: [FromRelation]
+              , _fromRelations  :: [FromRelation]
               , _selectFilter :: BooleanExpression
               } deriving (Eq, Show)
 

@@ -14,17 +14,17 @@ main = hspec $ do
     it "should build select null command" $
       showt select `shouldBe`
       "SELECT NULL WHERE true"
-    it "should build select command using fromClause setter" $
+    it "should build select command using fromRelations setter" $
       showt
-      (select & columns .~ ("*" :| []) & fromClause .~ ["table1", "table2"])
+      (select & columns .~ ("*" :| []) & fromRelations .~ ["table1", "table2"])
       `shouldBe` "SELECT * FROM \"table1\" \"table1\", \"table2\" \"table2\" WHERE true"
-    it "should build select command using fromClause and where setters" $
+    it "should build select command using fromRelations and where setters" $
       showt
-      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & selectFilter .~ f)
+      (select & columns .~ ("*" :| []) & fromRelations .~ ["table1"] & selectFilter .~ f)
       `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE false"
     it "should build select command using NOT IN" $
       showt
-      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & selectFilter .~ (Not $ ("table1"//"c") `In` selectFrom "sub"))
+      (select & columns .~ ("*" :| []) & fromRelations .~ ["table1"] & selectFilter .~ (Not $ ("table1"//"c") `In` selectFrom "sub"))
       `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE NOT \"table1\".\"c\" IN (SELECT * FROM \"sub\" \"sub\" WHERE true)"
   describe "selectFunction" $
     it "should build select version()" $
