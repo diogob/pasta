@@ -35,11 +35,8 @@ A ```INSERT``` statement with conflict resolution (aka UPSERT).
 import Pasta
 
 showt $
-    insert "public.foo" 
-        ("bar" :| ["qux"]) 
-        ("2" :| ["3"])
-    & onConflict .~ doUpdate "foo_pkey" 
-    ["bar" =.= ("EXCLUDED"//"bar"), "qux" =.= ("EXCLUDED"//"qux")]
+    insert "public.foo" ("bar" :| ["qux"]) ("2" :| ["3"])
+    & onConflict .~ doUpdate "foo_pkey" ["bar" .= "qux"]
 ```
 
 Note that `:|` (an operator from [semigroups](http://hackage.haskell.org/package/semigroups) module) is re-exported from PASTA for convenience. The **NonEmpty** type is used in several PASTA functions.
