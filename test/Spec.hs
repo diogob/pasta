@@ -20,8 +20,8 @@ main = hspec $ do
       `shouldBe` "SELECT * FROM \"table1\" \"table1\", \"table2\" \"table2\" WHERE true"
     it "should build select command using fromClause and where setters" $
       showt
-      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & selectFilter .~ t)
-      `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE true"
+      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & selectFilter .~ f)
+      `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE false"
     it "should build select command using NOT IN" $
       showt
       (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & selectFilter .~ (Not $ ("table1"//"c") `In` selectFrom "sub"))
