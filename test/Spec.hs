@@ -20,11 +20,11 @@ main = hspec $ do
       `shouldBe` "SELECT * FROM \"table1\" \"table1\", \"table2\" \"table2\" WHERE true"
     it "should build select command using fromClause and where setters" $
       showt
-      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & setWhere t)
+      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & selectFilter .~ t)
       `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE true"
     it "should build select command using NOT IN" $
       showt
-      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & setWhere (Not $ ("table1"//"c") `In` selectFrom "sub"))
+      (select & columns .~ ("*" :| []) & fromClause .~ ["table1"] & selectFilter .~ (Not $ ("table1"//"c") `In` selectFrom "sub"))
       `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE NOT \"table1\".\"c\" IN (SELECT * FROM \"sub\" \"sub\" WHERE true)"
   describe "selectFunction" $
     it "should build select version()" $
@@ -47,7 +47,7 @@ main = hspec $ do
       showt (update "foo" ("bar" :| []) ("qux" :| []) & updateReturning .~ ["*"])
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE true RETURNING *"
     it "should build update with condition" $
-      showt (update "foo" ("bar" :| []) ("qux" :| []) & setUpdateFilter ("foo"//"bar" `eq` "baz"))
+      showt (update "foo" ("bar" :| []) ("qux" :| []) & updateFilter .~ ("foo"//"bar" `eq` "baz"))
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE \"foo\".\"bar\" = 'baz'"
 {-
     it "should build update with function and operator" $

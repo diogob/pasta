@@ -86,7 +86,7 @@ data FromRelation = FromRelation
 data Select = Select
               { _columns     :: NonEmpty Column
               , _fromClause  :: [FromRelation]
-              , _whereClause :: BooleanExpression
+              , _selectFilter :: BooleanExpression
               } deriving (Eq, Show)
 
 instance TextShow Expression where

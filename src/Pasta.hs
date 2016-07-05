@@ -6,6 +6,7 @@ module Pasta
     ( updateTarget
     , assignments
     , updateFilter
+    , selectFilter
     , insert
     , insertTarget
     , insertColumns
@@ -33,8 +34,6 @@ module Pasta
     , fromClause
     , relationAlias
     , relationExpression
-    , setWhere
-    , setUpdateFilter
     , showt
     , NonEmpty (..)
     , fromList
@@ -108,13 +107,6 @@ selectFunction fnId parameters = selectExp $ fn fnId parameters
 -- | Builds a function
 fn :: Identifier -> [Expression] -> Expression
 fn = FunctionExp
-
--- | Set a whereClause in a Select statement
-setWhere :: BooleanExpression -> Select -> Select
-setWhere = set whereClause
-
-setUpdateFilter :: BooleanExpression -> Update -> Update
-setUpdateFilter = set updateFilter
 
 -- | Just a convenient way to write a BoolLiteral True
 t :: BooleanExpression
