@@ -72,23 +72,23 @@ makeLenses ''Conflict
 makeLenses ''ConflictAction
 
 -- | Builds a BooleanExpression out of an operator and 2 expressions
-cmp :: Operator -> Expression -> Expression -> BooleanExpression
-cmp = Comparison
+cmp :: (IsExpression lexp, IsExpression rexp) => Text -> lexp -> rexp -> BooleanExpression
+cmp op lexp rexp = Comparison (Operator op) (toExp lexp) (toExp rexp)
 
-eq :: Identifier -> Expression -> BooleanExpression
-eq = cmp (Operator "=") . IdentifierExp
+eq :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+eq = cmp "="
 
-gt :: Identifier -> Expression -> BooleanExpression
-gt = cmp (Operator ">") . IdentifierExp
+gt :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+gt = cmp ">"
 
-lt :: Identifier -> Expression -> BooleanExpression
-lt = cmp (Operator "<") . IdentifierExp
+lt :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+lt = cmp "<"
 
-gte :: Identifier -> Expression -> BooleanExpression
-gte = cmp (Operator ">=") . IdentifierExp
+gte :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+gte = cmp ">="
 
-lte :: Identifier -> Expression -> BooleanExpression
-lte = cmp (Operator "<=") . IdentifierExp
+lte :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+lte = cmp "<="
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
@@ -109,6 +109,15 @@ selectFunction fnId parameters = selectExp $ fn fnId parameters
 -- | Builds a function
 fn :: Identifier -> [Expression] -> Expression
 fn = FunctionExp
+
+-- | Builds a now() function
+now :: Expression
+now = fn ("pg_catalog"//"now") []
+
+-- | Builds an age(t) function
+age :: IsExpression exp => exp -> Expression
+age time = fn ("pg_catalog"//"age") [toExp time]
+
 
 -- | Just a convenient way to write a BoolLiteral True
 t :: BooleanExpression
@@ -158,12 +167,6 @@ doUpdate target assigns =
 infixr 0 .!
 (.!) :: BooleanExpression -> BooleanExpression
 (.!) = Not
-
-now :: Expression
-now = fn ("pg_catalog"//"now") []
-
-age :: IsExpression exp => exp -> Expression
-age time = fn ("pg_catalog"//"age") [toExp time]
 
 -- private functions
 

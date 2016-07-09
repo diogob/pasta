@@ -50,7 +50,7 @@ main = hspec $ do
       showt (update "foo" ("bar" :| []) ("qux" :| []) & updateReturning .~ ["*"])
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE true RETURNING *"
     it "should build update with condition" $
-      showt (update "foo" ("bar" :| []) ("qux" :| []) & updateFilter .~ ("foo"//"bar" `eq` "baz"))
+      showt (update "foo" ("bar" :| []) ("qux" :| []) & updateFilter .~ ("foo"//"bar" `eq` ("baz" :: Text)))
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE \"foo\".\"bar\" = 'baz'"
 {-
     it "should build update with function and operator" $
