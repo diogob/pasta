@@ -14,9 +14,11 @@ module Pasta.Types
     , ConflictAction (..)
     , Assignment (..)
     , Operator (..)
+    , IsExpression (..)
     ) where
 
 import           Protolude hiding (toList)
+import Data.Function (id)
 import           Data.List.NonEmpty (NonEmpty (..), toList)
 import           Data.String        (fromString)
 import qualified Data.Text          as T
@@ -26,6 +28,21 @@ import           TextShow           (TextShow, fromText, showb, showt)
 newtype Operator = Operator T.Text deriving (Eq, Show)
 newtype Literal = Literal T.Text deriving (Eq, Show)
 newtype Name = Name T.Text deriving (Eq, Show)
+
+class IsExpression a where
+  toExp :: a -> Expression
+
+instance IsExpression Expression where
+  toExp = id
+
+instance IsExpression Identifier where
+  toExp = IdentifierExp
+
+instance IsExpression Literal where
+  toExp = LitExp
+
+instance IsExpression Text where
+  toExp = LitExp . Literal
 
 data Identifier = Identifier
                { _qualifier  :: Name

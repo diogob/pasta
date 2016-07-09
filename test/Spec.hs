@@ -36,8 +36,11 @@ main = hspec $ do
     it "should build insert command with on conflict" $
       showt (insert "foo" ("bar" :| []) ("qux" :| []) & onConflict .~ doNothing)
       `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ('qux') ON CONFLICT DO NOTHING"
+    it "should build insert command with on conflict update using identifiers" $
+      showt (insert "foo" ("bar" :| []) ("qux" :| []) & onConflict .~ doUpdate "pkey" ["bar" .= ("EXCLUDED"//"qux")])
+      `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ('qux') ON CONFLICT ON CONSTRAINT \"pkey\" DO UPDATE SET \"bar\" = EXCLUDED.\"qux\" WHERE true"
     it "should build insert command with on conflict update using literals" $
-      showt (insert "foo" ("bar" :| []) ("qux" :| []) & onConflict .~ doUpdate "pkey" ["bar" .= "qux"])
+      showt (insert "foo" ("bar" :| []) ("qux" :| []) & onConflict .~ doUpdate "pkey" ["bar" .= ("qux" :: Text)])
       `shouldBe` "INSERT INTO \"public\".\"foo\" (\"bar\") VALUES ('qux') ON CONFLICT ON CONSTRAINT \"pkey\" DO UPDATE SET \"bar\" = 'qux' WHERE true"
   describe "update" $ do
     it "should build update" $

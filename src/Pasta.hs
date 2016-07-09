@@ -141,8 +141,8 @@ doUpdate target assigns =
   Conflict (Just target) $
   DoUpdate (fromList assigns) t
 
-(.=) :: Name -> Expression -> Assignment
-(.=) = Assignment
+(.=) :: IsExpression exp => Name -> exp -> Assignment
+(.=) e ex = Assignment e $ toExp ex
 
 (//) :: Name -> Name -> Identifier
 (//) = Identifier
