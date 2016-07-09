@@ -49,6 +49,8 @@ module Pasta
     , gte
     , lte
     , fn
+    , now
+    , age
     ) where
 
 import Protolude hiding ((&))
@@ -156,6 +158,12 @@ doUpdate target assigns =
 infixr 0 .!
 (.!) :: BooleanExpression -> BooleanExpression
 (.!) = Not
+
+now :: Expression
+now = fn ("pg_catalog"//"now") []
+
+age :: IsExpression exp => exp -> Expression
+age time = fn ("pg_catalog"//"age") [toExp time]
 
 -- private functions
 
