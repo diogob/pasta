@@ -1,39 +1,31 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-|
 Module      : Pasta
 Description : Assembles SQL statements
 -}
 module Pasta
-    ( updateTarget
+    ( target
     , assignments
-    , updateFilter
-    , selectFilter
+    , conditions
     , insert
-    , insertTarget
-    , insertColumns
-    , insertValues
+    , columns
+    , values
     , update
-    , updateReturning
+    , returning
     , onConflict
     , doNothing
     , doUpdate
     , (.=)
     , (//)
-    , conflictTarget
-    , conflictAction
-    , conflictAssignments
-    , conflictWhere
     , select
     , selectExp
     , selectFrom
     , selectFunction
-    , alias
-    , columns
-    , expression
     , t
     , f
-    , fromRelations
-    , relationAlias
-    , relationExpression
+    , relations
     , toSQL
     , NonEmpty (..)
     , fromList
@@ -61,14 +53,9 @@ import Data.List.NonEmpty (NonEmpty(..), fromList)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 
-makeLenses ''Select
-makeLenses ''FromRelation
-makeLenses ''Column
-makeLenses ''Expression
-makeLenses ''Update
-makeLenses ''Insert
-makeLenses ''Conflict
-makeLenses ''ConflictAction
+makeFields ''Select
+makeFields ''Update
+makeFields ''Insert
 
 -- | Builds a BooleanExpression out of an operator and 2 expressions
 cmp :: (IsExpression lexp, IsExpression rexp) => Text -> lexp -> rexp -> BooleanExpression
@@ -95,7 +82,7 @@ select = Select (Column Null :| []) [] t
 
 -- | Builds a SELECT * FROM table statement.
 selectFrom :: Name -> Select
-selectFrom table = select & columns .~ ("*" :| []) & fromRelations .~ [FromRelation (NameExp table) table]
+selectFrom table = select & columns .~ ("*" :| []) & relations .~ [FromRelation (NameExp table) table]
 
 -- | Builds a SELECT expression with neither FROM nor WHERE clauses
 selectExp :: Expression -> Select
@@ -128,17 +115,17 @@ f = BoolLiteral False
 
 -- | Builds an INSERT statement using a target, a non-empty list of column names and a non-empty list of values
 insert :: T.Text -> NonEmpty T.Text -> NonEmpty T.Text -> Insert
-insert target cols vals = Insert (Identifier schema table) colNames valExps Nothing
+insert trg cols vals = Insert (Identifier schema table) colNames valExps Nothing
   where
-    (schema, table) = splitTarget target
+    (schema, table) = splitTarget trg
     colNames = Name <$> cols
     valExps = (LitExp . Literal) <$> vals
 
 -- | Builds an UPDATE statement using a target, a non-empty list of column names and a non-empty list of values
 update :: T.Text -> NonEmpty T.Text -> NonEmpty Expression -> Update
-update target cols vals = Update (Identifier schema table) assigns t []
+update trg cols vals = Update (Identifier schema table) assigns t []
   where
-    (schema, table) = splitTarget target
+    (schema, table) = splitTarget trg
     assigns = NE.zipWith Assignment (Name <$> cols) vals
 
 doNothing :: Maybe Conflict
@@ -146,9 +133,9 @@ doNothing = Just $ Conflict Nothing DoNothing
 
 doUpdate :: ConflictTarget -> [Assignment] -> Maybe Conflict
 doUpdate _ [] = Nothing
-doUpdate target assigns =
+doUpdate trg assigns =
   Just $
-  Conflict (Just target) $
+  Conflict (Just trg) $
   DoUpdate (fromList assigns) t
 
 (.=) :: IsExpression exp => Name -> exp -> Assignment
@@ -170,9 +157,9 @@ infixr 0 .!
 -- private functions
 
 splitTarget :: T.Text -> (Name, Name)
-splitTarget target = (schema, table)
+splitTarget trg = (schema, table)
   where
-    qId = Name <$> T.split (=='.') target
+    qId = Name <$> T.split (=='.') trg
     schema = case qId of
               [s, _] -> s
               _ -> "public"

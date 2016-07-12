@@ -112,9 +112,9 @@ data FromRelation = FromRelation
               } deriving (Eq, Show)
 
 data Select = Select
-              { _columns     :: NonEmpty Column
-              , _fromRelations  :: [FromRelation]
-              , _selectFilter :: BooleanExpression
+              { _selectColumns     :: NonEmpty Column
+              , _selectRelations  :: [FromRelation]
+              , _selectConditions :: BooleanExpression
               } deriving (Eq, Show)
 
 instance TextShow Expression where
@@ -170,8 +170,8 @@ data Assignment = Assignment
 
 data Update = Update
               { _updateTarget :: Identifier
-              , _assignments  :: NonEmpty Assignment
-              , _updateFilter :: BooleanExpression
+              , _updateAssignments  :: NonEmpty Assignment
+              , _updateConditions :: BooleanExpression
               , _updateReturning :: [Column]
               } deriving (Eq, Show)
 
@@ -197,7 +197,7 @@ data Insert = Insert
               { _insertTarget  :: Identifier
               , _insertColumns :: NonEmpty Name
               , _insertValues  :: NonEmpty Expression
-              , _onConflict    :: Maybe Conflict
+              , _insertOnConflict    :: Maybe Conflict
               } deriving (Eq, Show)
 
 instance IsString ConflictTarget where

@@ -14,17 +14,17 @@ main = hspec $ do
     it "should build select null command" $
       toSQL select `shouldBe`
       "SELECT NULL WHERE true"
-    it "should build select command using fromRelations setter" $
+    it "should build select command using relations setter" $
       toSQL
-      (select & columns .~ ("*" :| []) & fromRelations .~ ["table1", "table2"])
+      (select & columns .~ ("*" :| []) & relations .~ ["table1", "table2"])
       `shouldBe` "SELECT * FROM \"table1\" \"table1\", \"table2\" \"table2\" WHERE true"
-    it "should build select command using fromRelations and where setters" $
+    it "should build select command using relations and where setters" $
       toSQL
-      (select & columns .~ ("*" :| []) & fromRelations .~ ["table1"] & selectFilter .~ f)
+      (select & columns .~ ("*" :| []) & relations .~ ["table1"] & conditions .~ f)
       `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE false"
     it "should build select command using NOT IN" $
       toSQL
-      (select & columns .~ ("*" :| []) & fromRelations .~ ["table1"] & selectFilter .~ (Not $ ("table1"//"c") `In` selectFrom "sub"))
+      (select & columns .~ ("*" :| []) & relations .~ ["table1"] & conditions .~ (Not $ ("table1"//"c") `In` selectFrom "sub"))
       `shouldBe` "SELECT * FROM \"table1\" \"table1\" WHERE NOT \"table1\".\"c\" IN (SELECT * FROM \"sub\" \"sub\" WHERE true)"
   describe "selectFunction" $
     it "should build select version()" $
@@ -47,10 +47,10 @@ main = hspec $ do
       toSQL (update "foo" ("bar" :| []) ("qux" :| []))
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE true"
     it "should build update with returning *" $
-      toSQL (update "foo" ("bar" :| []) ("qux" :| []) & updateReturning .~ ["*"])
+      toSQL (update "foo" ("bar" :| []) ("qux" :| []) & returning .~ ["*"])
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE true RETURNING *"
     it "should build update with condition" $
-      toSQL (update "foo" ("bar" :| []) ("qux" :| []) & updateFilter .~ ("foo"//"bar" `eq` ("baz" :: Text)))
+      toSQL (update "foo" ("bar" :| []) ("qux" :| []) & conditions .~ ("foo"//"bar" `eq` ("baz" :: Text)))
       `shouldBe` "UPDATE \"public\".\"foo\" SET \"bar\" = 'qux' WHERE \"foo\".\"bar\" = 'baz'"
 {-
     it "should build update with function and operator" $
