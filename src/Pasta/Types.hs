@@ -15,6 +15,7 @@ module Pasta.Types
     , Assignment (..)
     , Operator (..)
     , IsExpression (..)
+    , IsSQL (..)
     ) where
 
 import           Protolude hiding (toList)
@@ -28,6 +29,16 @@ import           TextShow           (TextShow, fromText, showb, showt)
 newtype Operator = Operator T.Text deriving (Eq, Show)
 newtype Literal = Literal T.Text deriving (Eq, Show)
 newtype Name = Name T.Text deriving (Eq, Show)
+
+class IsSQL a where
+  toSQL :: a -> Text
+
+instance IsSQL Select where
+  toSQL = showt
+instance IsSQL Update where
+  toSQL = showt
+instance IsSQL Insert where
+  toSQL = showt
 
 class IsExpression a where
   toExp :: a -> Expression

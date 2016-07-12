@@ -25,16 +25,16 @@ A simple select can be generated as:
 ```haskell
 import Pasta
 
-showt (selectFrom "some_table")
+toSQL (selectFrom "some_table")
 ```
 
-Note that `showt` (a function from [TextShow](http://hackage.haskell.org/package/text-show) module) is re-exported from Pasta for convenience. 
+Note that `toSQL` currently is implemented using `showt` (a function from [TextShow](http://hackage.haskell.org/package/text-show) module).
 
 A ```INSERT``` statement with conflict resolution (aka UPSERT).
 ```haskell
 import Pasta
 
-showt $
+toSQL $
     insert "public.foo" ("bar" :| ["qux"]) ("2" :| ["3"])
     & onConflict .~ doUpdate "foo_pkey" ["bar" .= "qux"]
 ```

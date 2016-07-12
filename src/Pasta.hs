@@ -34,7 +34,7 @@ module Pasta
     , fromRelations
     , relationAlias
     , relationExpression
-    , showt
+    , toSQL
     , NonEmpty (..)
     , fromList
     , Expression(Null)
@@ -59,7 +59,6 @@ import Lens.Micro
 import Lens.Micro.TH
 import Data.List.NonEmpty (NonEmpty(..), fromList)
 import qualified Data.List.NonEmpty as NE
-import TextShow (showt)
 import qualified Data.Text as T
 
 makeLenses ''Select
