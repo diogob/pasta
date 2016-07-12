@@ -2,8 +2,7 @@
 
 PASTA stands for **PostgreSQL Abstract Syntax Tree Assembler**.
 It provies a set of functions and lenses that will build queries, based on an internal AST representation.
-It also provides instances for the [TextShow](https://github.com/RyanGlScott/text-show) class to convert
-the generated AST into Text.
+It also provides a `toSQL` function the generated AST into Text.
 
 In other words, it allows you to:
 
