@@ -35,7 +35,28 @@ import Pasta
 
 toSQL $
     insert "public.foo" ("bar" :| ["qux"]) ("2" :| ["3"])
-    & onConflict .~ doUpdate "foo_pkey" ["bar" .= "qux"]
+    & onConflict .~ doUpdate "foo_pkey" ["bar" .= ("qux" :: Text)]
+```
+
+The above `toSQL` will result in:
+```sql
+INSERT INTO "public"."foo" ("bar") VALUES ('qux') ON CONFLICT ON CONSTRAINT "pkey" DO UPDATE SET "bar" = 'qux' WHERE true
+```
+
+You can use the `//` operator to build fully qualified identifiers as in:
+
+```haskell
+toSQL
+  ( select 
+  & columns .~ ("*" :| []) 
+  & relations .~ ["table1"] 
+  & conditions .~ (("table1"//"c") `In` selectFrom "sub")
+  )
+```
+
+Wich results in:
+```sql
+SELECT * FROM "table1" "table1" WHERE "table1"."c" IN (SELECT * FROM "sub" "sub" WHERE true)
 ```
 
 Note that `:|` (an operator from [semigroups](http://hackage.haskell.org/package/semigroups) module) is re-exported from PASTA for convenience. The **NonEmpty** type is used in several PASTA functions.
