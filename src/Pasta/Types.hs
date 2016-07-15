@@ -5,6 +5,7 @@ module Pasta.Types
     , FromRelation (..)
     , Column (..)
     , Update (..)
+    , Delete (..)
     , Insert (..)
     , Name (..)
     , Identifier (..)
@@ -36,6 +37,8 @@ class IsSQL a where
 instance IsSQL Select where
   toSQL = showt
 instance IsSQL Update where
+  toSQL = showt
+instance IsSQL Delete where
   toSQL = showt
 instance IsSQL Insert where
   toSQL = showt
@@ -175,6 +178,12 @@ data Update = Update
               , _updateReturning :: [Column]
               } deriving (Eq, Show)
 
+data Delete = Delete
+              { _deleteTarget :: Identifier
+              , _deleteConditions :: BooleanExpression
+              , _deleteReturning :: [Column]
+              } deriving (Eq, Show)
+
 instance TextShow Assignment where
   showb (Assignment e1 e2) = showb e1 <> " = " <> showb e2
 
@@ -233,6 +242,17 @@ instance TextShow Update where
     <> showt e1
     <> " SET "
     <> neWithCommas e2
+    <> " WHERE " <> showt e3
+    <> if null e4
+          then ""
+          else " RETURNING "
+    <> withCommas e4
+
+instance TextShow Delete where
+  showb (Delete e1 e3 e4) =
+    fromText $
+    "DELETE FROM "
+    <> showt e1
     <> " WHERE " <> showt e3
     <> if null e4
           then ""

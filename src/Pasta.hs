@@ -13,6 +13,7 @@ module Pasta
     , columns
     , values
     , update
+    , delete
     , returning
     , onConflict
     , doNothing
@@ -55,6 +56,7 @@ import qualified Data.Text as T
 
 makeFields ''Select
 makeFields ''Update
+makeFields ''Delete
 makeFields ''Insert
 
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
@@ -87,6 +89,12 @@ update trg cols vals = Update (Identifier schema table) assigns t []
   where
     (schema, table) = splitTarget trg
     assigns = NE.zipWith Assignment (Name <$> cols) vals
+
+-- | Builds a DELETE statement using a target
+delete :: T.Text -> Delete
+delete trg = Delete (schema//table) t []
+  where
+    (schema, table) = splitTarget trg
 
 -- | Builds a BooleanExpression out of an operator and 2 expressions
 cmp :: (IsExpression lexp, IsExpression rexp) => Text -> lexp -> rexp -> BooleanExpression
