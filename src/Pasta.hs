@@ -57,25 +57,6 @@ makeFields ''Select
 makeFields ''Update
 makeFields ''Insert
 
--- | Builds a BooleanExpression out of an operator and 2 expressions
-cmp :: (IsExpression lexp, IsExpression rexp) => Text -> lexp -> rexp -> BooleanExpression
-cmp op lexp rexp = Comparison (Operator op) (toExp lexp) (toExp rexp)
-
-eq :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
-eq = cmp "="
-
-gt :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
-gt = cmp ">"
-
-lt :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
-lt = cmp "<"
-
-gte :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
-gte = cmp ">="
-
-lte :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
-lte = cmp "<="
-
 -- | Builds a SELECT null with neither FROM nor WHERE clauses.
 select :: Select
 select = Select (Column Null :| []) [] t
@@ -91,6 +72,45 @@ selectExp expr = select & columns .~ (Column expr :| [])
 -- | Builds a SELECT fn(parameters) with neither FROM nor WHERE clauses
 selectFunction :: Identifier -> [Expression] -> Select
 selectFunction fnId parameters = selectExp $ fn fnId parameters
+
+-- | Builds an INSERT statement using a target, a non-empty list of column names and a non-empty list of values
+insert :: T.Text -> NonEmpty T.Text -> NonEmpty T.Text -> Insert
+insert trg cols vals = Insert (Identifier schema table) colNames valExps Nothing
+  where
+    (schema, table) = splitTarget trg
+    colNames = Name <$> cols
+    valExps = (LitExp . Literal) <$> vals
+
+-- | Builds an UPDATE statement using a target, a non-empty list of column names and a non-empty list of values
+update :: T.Text -> NonEmpty T.Text -> NonEmpty Expression -> Update
+update trg cols vals = Update (Identifier schema table) assigns t []
+  where
+    (schema, table) = splitTarget trg
+    assigns = NE.zipWith Assignment (Name <$> cols) vals
+
+-- | Builds a BooleanExpression out of an operator and 2 expressions
+cmp :: (IsExpression lexp, IsExpression rexp) => Text -> lexp -> rexp -> BooleanExpression
+cmp op lexp rexp = Comparison (Operator op) (toExp lexp) (toExp rexp)
+
+-- | Builds a equality comparison out of two expressions
+eq :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+eq = cmp "="
+
+-- | Builds a greater than comparison out of two expressions
+gt :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+gt = cmp ">"
+
+-- | Builds a lesser than comparison out of two expressions
+lt :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+lt = cmp "<"
+
+-- | Builds a greater than or equal comparison out of two expressions
+gte :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+gte = cmp ">="
+
+-- | Builds a lesser than or equal comparison out of two expressions
+lte :: (IsExpression lexp, IsExpression rexp) => lexp -> rexp -> BooleanExpression
+lte = cmp "<="
 
 -- | Builds a function
 fn :: Identifier -> [Expression] -> Expression
@@ -113,24 +133,11 @@ t = BoolLiteral True
 f :: BooleanExpression
 f = BoolLiteral False
 
--- | Builds an INSERT statement using a target, a non-empty list of column names and a non-empty list of values
-insert :: T.Text -> NonEmpty T.Text -> NonEmpty T.Text -> Insert
-insert trg cols vals = Insert (Identifier schema table) colNames valExps Nothing
-  where
-    (schema, table) = splitTarget trg
-    colNames = Name <$> cols
-    valExps = (LitExp . Literal) <$> vals
-
--- | Builds an UPDATE statement using a target, a non-empty list of column names and a non-empty list of values
-update :: T.Text -> NonEmpty T.Text -> NonEmpty Expression -> Update
-update trg cols vals = Update (Identifier schema table) assigns t []
-  where
-    (schema, table) = splitTarget trg
-    assigns = NE.zipWith Assignment (Name <$> cols) vals
-
+-- | Used for conflict resolution when we don't want the conflict to trigger any exception
 doNothing :: Maybe Conflict
 doNothing = Just $ Conflict Nothing DoNothing
 
+-- | Used for conflict resolution when we want the conflict to update some column
 doUpdate :: ConflictTarget -> [Assignment] -> Maybe Conflict
 doUpdate _ [] = Nothing
 doUpdate trg assigns =
@@ -138,18 +145,23 @@ doUpdate trg assigns =
   Conflict (Just trg) $
   DoUpdate (fromList assigns) t
 
+-- | Assignment operator creates SQL assignments like in conflict resolution rules
 (.=) :: IsExpression exp => Name -> exp -> Assignment
 (.=) e ex = Assignment e $ toExp ex
 
+-- | Identifier builder, takes two names and builds a qualified identifier (e.g. "information_schema"."tables")
 (//) :: Name -> Name -> Identifier
 (//) = Identifier
 
+-- | Boolean OR
 (.|) :: BooleanExpression -> BooleanExpression -> BooleanExpression
 (.|) = Or
 
+-- | Boolean AND
 (.&) :: BooleanExpression -> BooleanExpression -> BooleanExpression
 (.&) = And
 
+-- | Boolean NOT
 infixr 0 .!
 (.!) :: BooleanExpression -> BooleanExpression
 (.!) = Not
