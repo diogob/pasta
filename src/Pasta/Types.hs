@@ -197,10 +197,8 @@ data Conflict = Conflict
                 } deriving (Eq, Show)
 
 data ConflictAction = DoNothing
-                    | DoUpdate
-                      { _conflictAssignments :: NonEmpty Assignment
-                      , _conflictWhere       :: BooleanExpression
-                      } deriving (Eq, Show)
+                    | DoUpdate (NonEmpty Assignment) BooleanExpression
+                    deriving (Eq, Show)
 
 data Insert = Insert
               { _insertTarget  :: Identifier
