@@ -1,13 +1,13 @@
 name:                pasta
-version:             0.1.0.0
-synopsis:            Initial project template from stack
+version:             0.1.0.1
+synopsis:            PostgreSQL Abstract Syntax Tree Assember
 description:         Please see README.md
-homepage:            http://github.com/githubuser/pasta#readme
+homepage:            http://github.com/diogob/pasta#readme
 license:             BSD3
 license-file:        LICENSE
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2015 Author Here
+author:              Diogo Biazus
+maintainer:          diogo@biazus.me
+copyright:           2015 Diogo Biazus
 category:            Web
 build-type:          Simple
 -- extra-source-files:
