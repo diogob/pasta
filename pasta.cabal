@@ -1,5 +1,5 @@
 name:                pasta
-version:             0.1.0.2
+version:             0.1.0.3
 synopsis:            PostgreSQL Abstract Syntax Tree Assember
 description:         Please see README.md
 homepage:            http://github.com/diogob/pasta#readme
