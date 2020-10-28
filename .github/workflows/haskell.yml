@@ -31,8 +31,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        stack build --only-dependencies
+        stack build --only-dependencies --system-ghc
     - name: Build
-      run: stack build --test
+      run: stack build --test --system-ghc
     - name: Run tests
-      run: stack test
+      run: stack test --system-ghc
