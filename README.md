@@ -1,4 +1,4 @@
-# PASTA [![Circle CI](https://circleci.com/gh/diogob/pasta/tree/master.svg?style=svg)](https://circleci.com/gh/diogob/pasta/tree/master)
+# PASTA ![Haskell CI](https://github.com/diogob/pasta/workflows/Haskell%20CI/badge.svg)
 
 PASTA stands for **PostgreSQL Abstract Syntax Tree Assembler**.
 It provies a set of functions and lenses that will build queries, based on an internal AST representation.
