@@ -27,7 +27,7 @@ jobs:
         path: |
           ~/.stack-work
           ~/.stack
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/stack.yml') }}
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/stack.yaml') }}
 
     - name: Install dependencies
       run: |
