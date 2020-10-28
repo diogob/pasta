@@ -36,3 +36,4 @@ jobs:
       run: stack build --test --system-ghc
     - name: Run tests
       run: stack test --system-ghc
+    - uses: domdere/haskell-lint-action@v1.0.2
