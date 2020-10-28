@@ -22,7 +22,7 @@ library
                      , microlens >= 0.4 && < 0.5
                      , microlens-th >= 0.3 && < 0.5
                      , text >= 1.2 && < 1.3
-                     , text-show >= 2.1 && < 3.7
+                     , text-show >= 2.1 && < 3.9
                      , semigroups >= 0.18
                      , protolude >= 0.1
   default-language:    Haskell2010
