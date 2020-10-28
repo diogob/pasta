@@ -50,7 +50,7 @@ import Protolude hiding ((&))
 import Pasta.Types
 import Lens.Micro
 import Lens.Micro.TH
-import Data.List.NonEmpty (NonEmpty(..), fromList)
+import Data.List.NonEmpty (fromList)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 

@@ -21,7 +21,7 @@ module Pasta.Types
 
 import           Protolude hiding (toList)
 import Data.Function (id)
-import           Data.List.NonEmpty (NonEmpty (..), toList)
+import           Data.List.NonEmpty (toList)
 import           Data.String        (fromString)
 import qualified Data.Text          as T
 import           TextShow           (TextShow, fromText, showb, showt)
