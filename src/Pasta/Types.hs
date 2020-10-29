@@ -188,7 +188,7 @@ instance TextShow Assignment where
   showb (Assignment e1 e2) = showb e1 <> " = " <> showb e2
 
 -- Insert types
-data ConflictTarget = OnConstraint Name
+newtype ConflictTarget = OnConstraint Name
                       deriving (Eq, Show)
 
 data Conflict = Conflict
@@ -231,7 +231,7 @@ instance TextShow Insert where
     <> ") VALUES ("
     <> neWithCommas e3
     <> ")"
-    <> fromMaybe "" (showt <$> e4)
+    <> maybe "" showt e4
 
 instance TextShow Update where
   showb (Update e1 e2 e3 e4) =
