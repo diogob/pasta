@@ -1,4 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-|
@@ -50,7 +49,7 @@ import Protolude hiding ((&))
 import Pasta.Types
 import Lens.Micro
 import Lens.Micro.TH
-import Data.List.NonEmpty (NonEmpty(..), fromList)
+import Data.List.NonEmpty (fromList)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 
@@ -81,7 +80,7 @@ insert trg cols vals = Insert (Identifier schema table) colNames valExps Nothing
   where
     (schema, table) = splitTarget trg
     colNames = Name <$> cols
-    valExps = (LitExp . Literal) <$> vals
+    valExps = LitExp . Literal <$> vals
 
 -- | Builds an UPDATE statement using a target, a non-empty list of column names and a non-empty list of values
 update :: T.Text -> NonEmpty T.Text -> NonEmpty Expression -> Update

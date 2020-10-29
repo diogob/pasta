@@ -20,21 +20,23 @@ jobs:
         stack-version: 'latest'
 
     - name: Cache
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       env:
-        cache-name: cache-cabal
+        cache-name: cache-stack
       with:
-        path: ~/.stack-work
-        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
+        path: |
+          ~/.stack-work
+          ~/.stack
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/stack.yaml') }}
 
     - name: Install dependencies
       run: |
-        stack build --only-dependencies
+        stack build --only-dependencies --system-ghc
     - name: Build
-      run: stack build --test
+      run: stack build --test --system-ghc
     - name: Run tests
-      run: stack test
+      run: stack test --system-ghc
+    - name: Install linter
+      run: sudo apt install hlint
+    - name: Run linter
+      run: hlint .
